@@ -1,0 +1,9 @@
+,-----.   ,--.            ,---.                              ,--.
+|  |) /_  `--' ,-----.   '   .-'   ,---.  ,--.--. ,--.  ,--. `--'  ,---.  ,---.
+|  .-.  \ ,--. `-.  /    `.  `-.  | .-. : |  .--'  \  `'  /  ,--. | .--' | .-. :
+|  '--' / |  |  /  `-.   .-'    | \   --. |  |      \    /   |  | \ `--. \   --.
+`------'  `--' `-----'   `-----'   `----' `--'       `--'    `--'  `---'  `----'
+
+${application.title} ${application.version}
+Powered by Spring Boot ${spring-boot.version}
+Banner Generator: https://devops.datenkollektiv.de/banner.txt/index.html

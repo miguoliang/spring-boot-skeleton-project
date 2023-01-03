@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.muchencute</groupId>
+  <artifactId>bom-file-format</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <docx4j.version>11.4.8</docx4j.version>
+    <poi.version>4.1.2</poi.version>
+    <pdf2dom.version>2.0.3</pdf2dom.version>
+    <pdfbox.version>3.0.0-RC1</pdfbox.version>
+    <zip4j.version>2.9.0</zip4j.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.docx4j</groupId>
+        <artifactId>docx4j-JAXB-MOXy</artifactId>
+        <version>${docx4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.docx4j</groupId>
+        <artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
+        <version>${docx4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.docx4j</groupId>
+        <artifactId>docx4j-export-fo</artifactId>
+        <version>${docx4j-version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml</artifactId>
+        <version>${poi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-scratchpad</artifactId>
+        <version>${poi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.lingala.zip4j</groupId>
+        <artifactId>zip4j</artifactId>
+        <version>${zip4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox</artifactId>
+        <version>${pdfbox.version}</version>
+      </dependency>
+      <dependency>
+        <!-- jsoup HTML parser library @ https://jsoup.org/ -->
+        <groupId>org.jsoup</groupId>
+        <artifactId>jsoup</artifactId>
+        <version>${jsoup.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.cssbox</groupId>
+        <artifactId>pdf2dom</artifactId>
+        <version>${pdf2dom.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

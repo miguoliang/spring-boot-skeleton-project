@@ -18,85 +18,67 @@
     <module>biz-batch-service</module>
     <module>biz-service</module>
     <module>biz-keycloak</module>
+    <module>bom-file-format</module>
+    <module>bom-misc</module>
+    <module>bom-test</module>
     <module>test-environment</module>
+    <module>biz-model</module>
+    <module>biz-batch-client</module>
   </modules>
   <properties>
-    <java.version>17</java.version>
-    <spring-boot.version>3.0.1</spring-boot.version>
     <spring-cloud.version>2022.0.0</spring-cloud.version>
-    <keycloak.version>20.0.2</keycloak.version>
-    <hutool.version>5.8.11</hutool.version>
-    <springdoc.version>2.0.2</springdoc.version>
-    <docx4j.version>11.4.8</docx4j.version>
-    <pdfbox.version>3.0.0-RC1</pdfbox.version>
-    <testcontainers.version>1.17.6</testcontainers.version>
   </properties>
+
+  <profiles>
+    <profile>
+      <id>dev</id>
+      <properties>
+        <activatedProfile>dev</activatedProfile>
+      </properties>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+    <profile>
+      <id>prod</id>
+      <properties>
+        <activatedProfile>prod</activatedProfile>
+      </properties>
+    </profile>
+  </profiles>
 
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-dependencies</artifactId>
-        <version>${spring-boot.version}</version>
-        <type>pom</type>
-      </dependency>
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-dependencies</artifactId>
         <version>${spring-cloud.version}</version>
         <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers-bom</artifactId>
-        <version>${testcontainers.version}</version>
+        <groupId>com.muchencute</groupId>
+        <artifactId>bom-file-format</artifactId>
+        <version>${project.version}</version>
         <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>org.keycloak</groupId>
-        <artifactId>keycloak-admin-cli</artifactId>
-        <version>${keycloak.version}</version>
+        <groupId>com.muchencute</groupId>
+        <artifactId>bom-misc</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
       <dependency>
-        <groupId>cn.hutool</groupId>
-        <artifactId>hutool-all</artifactId>
-        <version>${hutool.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.springdoc</groupId>
-        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-        <version>${springdoc.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.docx4j</groupId>
-        <artifactId>docx4j-JAXB-MOXy</artifactId>
-        <version>${docx4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.docx4j</groupId>
-        <artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
-        <version>${docx4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.pdfbox</groupId>
-        <artifactId>pdfbox</artifactId>
-        <version>${pdfbox.version}</version>
+        <groupId>com.muchencute</groupId>
+        <artifactId>bom-test</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <dependencies>
-    <dependency>
-      <groupId>cn.hutool</groupId>
-      <artifactId>hutool-all</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <optional>true</optional>
-    </dependency>
-  </dependencies>
 
   <build>
     <pluginManagement>
@@ -112,6 +94,21 @@
               </exclude>
             </excludes>
           </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.liquibase</groupId>
+          <artifactId>liquibase-maven-plugin</artifactId>
+          <version>${liquibase.version}</version>
+          <configuration>
+            <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.springframework.data</groupId>
+              <artifactId>spring-data-jpa</artifactId>
+              <version>3.0.0</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>
