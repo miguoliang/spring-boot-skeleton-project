@@ -75,10 +75,10 @@ services:
       - MINIO_SERVER_HOST=localhost
       - MINIO_ROOT_USER=minio-root-user
       - MINIO_ROOT_PASSWORD=minio-root-password
-      - MINIO_DEFAULT_BUCKETS=tp-bucket
-      - MINIO_NOTIFY_KAFKA_BROKERS_TP=kafka:9092
-      - MINIO_NOTIFY_KAFKA_ENABLE_TP=on
-      - MINIO_NOTIFY_KAFKA_TOPIC_TP=minio_bucket_notification
+      - MINIO_DEFAULT_BUCKETS=biz-bucket
+      - MINIO_NOTIFY_KAFKA_BROKERS_BIZ=kafka:9092
+      - MINIO_NOTIFY_KAFKA_ENABLE_BIZ=on
+      - MINIO_NOTIFY_KAFKA_TOPIC_BIZ=minio_bucket_notification
     depends_on:
       - kafka
     restart: always

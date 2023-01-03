@@ -23,7 +23,8 @@
     <module>bom-test</module>
     <module>test-environment</module>
     <module>biz-model</module>
-    <module>biz-batch-client</module>
+    <module>biz-batch-service-client</module>
+    <module>s3-minio</module>
   </modules>
   <properties>
     <spring-cloud.version>2022.0.0</spring-cloud.version>
