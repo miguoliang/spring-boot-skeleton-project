@@ -11,14 +11,19 @@ spring:
     username: root
     password: ${MYSQL_ROOT_PASSWORD:example}
     driver-class-name: org.postgresql.Driver
-  batch:
-    jdbc:
-      initialize-schema: always
-    job:
-      enabled: false
   cloud:
     zookeeper:
       connect-string: ${ZOOKEEPER_HOST:localhost}:${ZOOKEEPER_PORT:2181}
+    openfeign:
+      client:
+        config:
+          default:
+            connectTimeout: 3600000
+            readTimeout: 3600000
+            loggerLevel: full
+      autoconfiguration:
+        jackson:
+          enabled: true
   profiles:
     active: @activatedProfile@
 
@@ -28,17 +33,6 @@ minio:
   password: ${MINIO_ROOT_PASSWORD:minio-root-password}
   bucket: ${MINIO_DEFAULT_BUCKET:tp-bucket}
   bucket-notification-topic: ${MINIO_BUCKET_NOTIFICATION_TOPIC:minio_bucket_notification}
-
-feign:
-  client:
-    config:
-      default:
-        connectTimeout: 3600000
-        readTimeout: 3600000
-        loggerLevel: full
-  autoconfiguration:
-    jackson:
-      enabled: true
 
 app:
   ddl-auto: validate
