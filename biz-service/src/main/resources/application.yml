@@ -33,10 +33,6 @@ spring:
         jwt:
           jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:8080/auth/realms/${KEYCLOAK_REALM:console-app}/protocol/openid-connect/certs
 
-management:
-  endpoints:
-    enabled-by-default: true
-
 minio:
   endpoint: http://${MINIO_HOST:localhost}:${MINIO_PORT:9000}/
   username: ${MINIO_ROOT_USER:minio-root-user}
@@ -67,7 +63,7 @@ app:
       driver-class-name: org.postgresql.Driver
       dialect: org.hibernate.dialect.PostgreSQLDialect
       liquibase:
-        change-log: changelog.sql
+        change-log: 20230106075819_changelog.xml
     keycloak:
       url: jdbc:postgresql://${MYSQL_HOST:localhost}:5432/keycloak
       jdbcUrl: jdbc:postgresql://${MYSQL_HOST:localhost}:5432/keycloak

@@ -7,7 +7,7 @@ spring:
   application:
     name: biz-batch-service
   datasource:
-    url: jdbc:postgresql://${MYSQL_HOST:localhost}:5432/biz
+    url: jdbc:postgresql://${MYSQL_HOST:localhost}:5432/batch
     username: root
     password: ${MYSQL_ROOT_PASSWORD:example}
     driver-class-name: org.postgresql.Driver
@@ -47,19 +47,6 @@ app:
       driver-class-name: org.postgresql.Driver
       dialect: org.hibernate.dialect.PostgreSQLDialect
   kafka:
-    etl:
-      consumer:
-        bootstrap-servers:
-          - node1-kafkasvr.realsvr.cs-xc-idc2-area1.singhand.com:9193
-          - node2-kafkasvr.realsvr.cs-xc-idc2-area1.singhand.com:9193
-          - node3-kafkasvr.realsvr.cs-xc-idc2-area1.singhand.com:9193
-          - node4-kafkasvr.realsvr.cs-xc-idc2-area1.singhand.com:9193
-        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-        value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-        heartbeat-interval: 5s
-        auto-offset-reset: latest
-        enable-auto-commit: false
-        group-id: etl
     minio:
       consumer:
         bootstrap-servers: ${KAFKA_HOST:localhost}:9093

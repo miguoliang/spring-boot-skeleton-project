@@ -36,7 +36,7 @@ services:
       - "8080:8080"
     volumes:
       - ./init-keycloak/realm.json:/tmp/realm.json
-      - ./init-keycloak/tp-theme:/opt/bitnami/keycloak/themes/tp-theme
+      - ./init-keycloak/biz-theme:/opt/bitnami/keycloak/themes/biz-theme
     depends_on:
       - postgres
 
