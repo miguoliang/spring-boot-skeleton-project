@@ -28,9 +28,6 @@ public interface BizBatchServiceClient {
                                         @RequestParam(defaultValue = "") String fromDate,
                                         @RequestParam(defaultValue = "") String toDate);
 
-  @PostMapping("/batch-job/workOrder:export")
-  OperationResponse launchExportWorkOrdersJob();
-
   @GetMapping("/batch-job/latest")
   Collection<OperationResponse> getJobs(@RequestParam String username,
                                         @RequestParam String jobName);
