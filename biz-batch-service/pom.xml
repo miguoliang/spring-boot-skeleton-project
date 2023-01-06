@@ -66,6 +66,30 @@
       <artifactId>s3-minio</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-scratchpad</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.docx4j</groupId>
+      <artifactId>docx4j-JAXB-MOXy</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.docx4j</groupId>
+      <artifactId>docx4j-JAXB-ReferenceImpl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.cssbox</groupId>
+      <artifactId>pdf2dom</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
