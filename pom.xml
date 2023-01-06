@@ -15,16 +15,16 @@
   <name>SpringBootSkeleton</name>
   <description>SpringBootSkeleton</description>
   <modules>
+    <module>biz-batch-service-client</module>
     <module>biz-batch-service</module>
-    <module>biz-service</module>
     <module>biz-keycloak</module>
+    <module>biz-model</module>
+    <module>biz-service</module>
     <module>bom-file-format</module>
     <module>bom-misc</module>
     <module>bom-test</module>
-    <module>test-environment</module>
-    <module>biz-model</module>
-    <module>biz-batch-service-client</module>
     <module>s3-minio</module>
+    <module>test-environment</module>
   </modules>
   <properties>
     <spring-cloud.version>2022.0.0</spring-cloud.version>
