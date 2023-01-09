@@ -1,17 +1,17 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayMessage=!messagesPerField.existsError('username','password') displayInfo=realm.password && realm.registrationAllowed && !registrationDisabled??; section>
     <#if section = "header">
-        <div class="mb-8"></div>
-        <div class="mb-8"><h3 class="mb-1">Welcome back!</h3>
-          <p>Please enter your credentials to sign in!</p></div>
+      <div class="mb-8"></div>
+      <div class="mb-8"><h3 class="mb-1">Welcome back!</h3>
+        <p>Please enter your credentials to sign in!</p></div>
     <#elseif section = "form">
       <div>
-        <form action="#">
+        <form action="${url.loginAction}" method="post">
           <div class="form-container vertical">
-            <div class="form-item vertical"><label class="form-label mb-2">User Name</label>
+            <div class="form-item vertical"><label class="form-label mb-2">Username</label>
               <div class=""><input
                         class="input input-md h-11 focus:ring-indigo-600 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus:border-indigo-600"
-                        type="text" name="userName" autocomplete="off" placeholder="User Name" value="admin">
+                        type="text" name="username" autocomplete="off" placeholder="Username" value="admin">
               </div>
             </div>
             <div class="form-item vertical"><label class="form-label mb-2">Password</label>
@@ -29,7 +29,8 @@
             <div class="flex justify-between mb-6"><label class="checkbox-label mb-0"><input
                         class="checkbox text-indigo-600" type="checkbox" name="rememberMe" form="[object Object]"
                         value="true" checked=""><span class="ltr:ml-2 rtl:mr-2">Remember Me</span></label><a
-                      class="text-indigo-600 hover:underline" href="/forgot-password">Forgot Password?</a></div>
+                      class="text-indigo-600 hover:underline" href="${url.loginResetCredentialsUrl}">Forgot
+                Password?</a></div>
             <button class="button bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white radius-round h-11 px-8 py-2 w-full"
                     type="submit">Sign In
             </button>
@@ -104,14 +105,8 @@
 
     <#--    </div>-->
     <#elseif section = "info" >
-        <#if realm.password && realm.registrationAllowed && !registrationDisabled??>
-          <div id="kc-registration-container">
-            <div id="kc-registration">
-              <div class="mt-4 text-center"><span>Don't have an account yet? </span><a
-                        class="text-indigo-600 hover:underline" href="/sign-up">Sign up</a></div>
-            </div>
-          </div>
-        </#if>
+      <div class="mt-4 text-center"><span>Don't have an account yet? </span><a
+                class="text-indigo-600 hover:underline" href="${url.registrationUrl}">Sign up</a></div>
     <#elseif section = "socialProviders" >
         <#if realm.password && social.providers??>
           <div id="kc-social-providers" class="${properties.kcFormSocialAccountSectionClass!}">
