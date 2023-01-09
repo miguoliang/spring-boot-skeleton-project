@@ -31,7 +31,7 @@ services:
       - KEYCLOAK_PRODUCTION=true
       # 必须加 --hostname-strict-https=false，否则无法打开 admin 控制台
       # 参考文献 https://www.keycloak.org/server/hostname
-      - KEYCLOAK_EXTRA_ARGS=--hostname-strict-https=false -Dkeycloak.import=/tmp/realm.json
+      - KEYCLOAK_EXTRA_ARGS=--hostname-strict-https=false -Dkeycloak.import=/tmp/realm.json --spi-theme-static-max-age=-1 --spi-theme-cache-themes=false --spi-theme-cache-templates=false
     ports:
       - "8080:8080"
     volumes:
