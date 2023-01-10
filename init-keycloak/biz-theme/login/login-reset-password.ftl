@@ -10,7 +10,7 @@
             <div class="form-item vertical"><label class="form-label"></label>
               <div class=""><input
                         class="input input-md h-11 focus:ring-indigo-600 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus:border-indigo-600"
-                        type="email" name="username" autocomplete="off" placeholder="Email" value="admin@mail.com">
+                        type="text" name="username" autocomplete="off" placeholder="Email" value="admin@mail.com">
               </div>
             </div>
           </div>
