@@ -1,14 +1,14 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayInfo=true; section>
     <#if section = "header">
-        ${msg("emailVerifyTitle")}
+      <div class="mb-8"><h3 class="mb-1">${msg("emailVerifyTitle")}</h3></div>
     <#elseif section = "form">
-        <p class="instruction">${msg("emailVerifyInstruction1",user.email)}</p> 
+      <p class="mb-8">${msg("emailVerifyInstruction1", user.email)}</p>
     <#elseif section = "info">
-        <p class="instruction">
-            ${msg("emailVerifyInstruction2")}
-            <br/>
-            <a href="${url.loginAction}">${msg("doClickHere")}</a> ${msg("emailVerifyInstruction3")}
-        </p>
+      <p class="mb-8">
+          ${msg("emailVerifyInstruction2")}
+        <br/>
+        <a class="text-blue-500" href="${url.loginAction}">${msg("doClickHere")}</a> ${msg("emailVerifyInstruction3")}
+      </p>
     </#if>
 </@layout.registrationLayout>

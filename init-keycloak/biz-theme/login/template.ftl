@@ -57,7 +57,7 @@
           </div>
           <span class="text-white">Copyright  ©  2023 <span class="font-semibold">Elstar</span> </span></div>
         <div class="col-span-2 flex flex-col justify-center items-center bg-white dark:bg-gray-800">
-          <div class="xl:min-w-[450px] px-8">
+          <div class="xl:w-[450px] px-8">
 
               <#nested "header">
 
@@ -107,11 +107,11 @@
                 <div class="ltr:ml-2 rtl:mr-2">${kcSanitize(message.summary)?no_esc}</div>
               </div>
             </div>
-          </div>
             </#if>
             <#nested "form">
             <#nested "socialProviders">
             <#nested "info">
+          </div>
         </div>
       </div>
     </div>
