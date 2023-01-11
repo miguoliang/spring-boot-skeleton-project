@@ -46,21 +46,12 @@
                 class="text-indigo-600 hover:underline" href="${url.registrationUrl}">Sign up</a></div>
     <#elseif section = "socialProviders" >
         <#if realm.password && social.providers??>
-          <div id="kc-social-providers" class="${properties.kcFormSocialAccountSectionClass!}">
-            <hr/>
-            <h4>${msg("identity-provider-login-label")}</h4>
-
-            <ul class="${properties.kcFormSocialAccountListClass!} <#if social.providers?size gt 3>${properties.kcFormSocialAccountListGridClass!}</#if>">
+          <div class="mt-4 mb-8">
+            <p class="mb-4 text-center">${msg("identity-provider-login-label")}</p>
+            <ul class="flex justify-around">
                 <#list social.providers as p>
-                  <a id="social-${p.alias}"
-                     class="${properties.kcFormSocialAccountListButtonClass!} <#if social.providers?size gt 3>${properties.kcFormSocialAccountGridItem!}</#if>"
-                     type="button" href="${p.loginUrl}">
-                      <#if p.iconClasses?has_content>
-                        <i class="${properties.kcCommonLogoIdP!} ${p.iconClasses!}" aria-hidden="true"></i>
-                        <span class="${properties.kcFormSocialAccountNameClass!} kc-social-icon-text">${p.displayName!}</span>
-                      <#else>
-                        <span class="${properties.kcFormSocialAccountNameClass!}">${p.displayName!}</span>
-                      </#if>
+                  <a type="button" href="${p.loginUrl}">
+                    <img class="w-8 h-8" src="${url.resourcesPath}/img/social/social-${p.alias}.png" alt="${p.displayName}"/>
                   </a>
                 </#list>
             </ul>
@@ -69,3 +60,4 @@
     </#if>
 
 </@layout.registrationLayout>
+v
