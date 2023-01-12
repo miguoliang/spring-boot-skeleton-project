@@ -37,6 +37,7 @@ services:
     volumes:
       - ./init-keycloak/realm.json:/tmp/realm.json
       - ./init-keycloak/biz-theme:/opt/bitnami/keycloak/themes/biz-theme
+      - ./keycloak-idp-wechat/target/keycloak-idp-wechat-20.0.2.jar:/opt/bitnami/keycloak/providers/keycloak-idp-wechat.jar
     depends_on:
       - postgres
 
