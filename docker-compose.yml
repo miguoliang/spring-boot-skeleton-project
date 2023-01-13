@@ -83,6 +83,7 @@ services:
       - MINIO_NOTIFY_KAFKA_TOPIC_BIZ=minio_bucket_notification
     depends_on:
       - kafka
+    restart: always
     volumes:
       - biz-minio-data:/data
 
