@@ -18,7 +18,7 @@ services:
     image: bitnami/keycloak:20.0.2-debian-11-r7
     restart: always
     environment:
-      - BASE_URL=http://localhost:8091/
+      - BASE_URL=http://localhost:3000/
       - APP_NAME=XXXX系统
       - KEYCLOAK_DATABASE_HOST=postgres
       - KEYCLOAK_CREATE_ADMIN_USER=true
