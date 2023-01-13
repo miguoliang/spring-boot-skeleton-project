@@ -12,6 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - ./init-postgres:/docker-entrypoint-initdb.d
+      - biz-postgres-data:/var/lib/postgresql/data
 
   keycloak:
     image: bitnami/keycloak:20.0.2-debian-11-r7
@@ -82,4 +83,11 @@ services:
       - MINIO_NOTIFY_KAFKA_TOPIC_BIZ=minio_bucket_notification
     depends_on:
       - kafka
-    restart: always
+    volumes:
+      - biz-minio-data:/data
+
+volumes:
+  biz-minio-data:
+    external: true
+  biz-postgres-data:
+    external: true
