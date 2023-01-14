@@ -10,7 +10,8 @@
               <div class="form-item vertical"><label class="form-label mb-2">Username</label>
                 <div class=""><input
                           class="<#if messagesPerField.existsError('username')>input-invalid</#if> input input-md h-11 focus:ring-indigo-600 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus:border-indigo-600"
-                          type="text" name="username" autocomplete="off" placeholder="Username" value="${(user.username!'')}">
+                          type="text" name="username" autocomplete="off" placeholder="Username"
+                          value="${(user.username!'')}">
                     <#if messagesPerField.existsError('username')>
                       <div class="form-explain" style="opacity: 1; margin-top: 3px;">
                           ${kcSanitize(messagesPerField.getFirstError('username'))?no_esc}
@@ -31,7 +32,30 @@
                     </#if></div>
               </div>
             </#if>
-
+          <div class="form-item vertical"><label class="form-label mb-2">Username</label>
+            <div class=""><input
+                      class="<#if messagesPerField.existsError('firstName')>input-invalid</#if> input input-md h-11 focus:ring-indigo-600 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus:border-indigo-600"
+                      type="text" name="firstName" autocomplete="off" placeholder="First Name"
+                      value="${(user.firstName!'')}">
+                <#if messagesPerField.existsError('firstName')>
+                  <div class="form-explain" style="opacity: 1; margin-top: 3px;">
+                      ${kcSanitize(messagesPerField.getFirstError('firstName'))?no_esc}
+                  </div>
+                </#if>
+            </div>
+          </div>
+          <div class="form-item vertical"><label class="form-label mb-2">Username</label>
+            <div class=""><input
+                      class="<#if messagesPerField.existsError('lastName')>input-invalid</#if> input input-md h-11 focus:ring-indigo-600 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus:border-indigo-600"
+                      type="text" name="lastName" autocomplete="off" placeholder="Last Name"
+                      value="${(user.lastName!'')}">
+                <#if messagesPerField.existsError('lastName')>
+                  <div class="form-explain" style="opacity: 1; margin-top: 3px;">
+                      ${kcSanitize(messagesPerField.getFirstError('lastName'))?no_esc}
+                  </div>
+                </#if>
+            </div>
+          </div>
             <#if isAppInitiatedAction??>
               <button class="mb-4 button bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white radius-round h-11 px-8 py-2 w-full"
                       type="submit">${msg("doSubmit")}
