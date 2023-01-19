@@ -27,7 +27,7 @@
                 </#if></div>
           </div>
           <div class="form-item vertical"><label class="form-label mb-2">Password</label>
-            <div class=""><span class="input-wrapper "><input
+            <div class=""><span class="input-wrapper " onclick="togglePasswordVisibility('password')"><input id="password"
                         class="<#if messagesPerField.existsError('password','password-confirm')>input-invalid</#if> input input-md h-11 focus:ring-indigo-600 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus:border-indigo-600"
                         type="password" name="password" autocomplete="new-password" placeholder="Password"
                         value="123Qwe1"
@@ -45,7 +45,7 @@
             </div>
           </div>
           <div class="form-item vertical"><label class="form-label mb-2">Confirm Password</label>
-            <div class=""><span class="input-wrapper "><input
+            <div class=""><span class="input-wrapper " onclick="togglePasswordVisibility('password-confirm')"><input id="password-confirm"
                         class="<#if messagesPerField.existsError('password-confirm')>input-invalid</#if>input input-md h-11 focus:ring-indigo-600 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus:border-indigo-600"
                         type="password" name="password-confirm" autocomplete="off" placeholder="Confirm Password"
                         value="123Qwe1" style="padding-right: 2.25rem;"><div class="input-suffix-end"><span
