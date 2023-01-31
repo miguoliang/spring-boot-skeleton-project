@@ -15,7 +15,7 @@ services:
       - biz-postgres-data:/var/lib/postgresql/data
 
   keycloak:
-    image: bitnami/keycloak:20.0.2-debian-11-r7
+    image: bitnami/keycloak:20.0.3-debian-11-r8
     restart: always
     environment:
       - BASE_URL=http://localhost:3000/
@@ -53,7 +53,7 @@ services:
   # 有关 Kafka Docker 中的配置的关键概念介绍及区分线索
   # 参考文献 https://stackoverflow.com/questions/42998859/kafka-server-configuration-listeners-vs-advertised-listeners
   kafka:
-    image: bitnami/kafka:3.3.1-debian-11-r5
+    image: bitnami/kafka:3.3.2-debian-11-r2
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT

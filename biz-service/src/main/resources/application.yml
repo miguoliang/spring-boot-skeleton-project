@@ -32,6 +32,10 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://${KEYCLOAK_HOST:localhost}:8080/auth/realms/${KEYCLOAK_REALM:console-app}/protocol/openid-connect/certs
+  jpa:
+    # 性能优化点，但是是否要打开，需要考虑具体情况
+    # 参考文献：https://www.baeldung.com/spring-open-session-in-view
+    open-in-view: true
 
 minio:
   endpoint: http://${MINIO_HOST:localhost}:${MINIO_PORT:9000}/

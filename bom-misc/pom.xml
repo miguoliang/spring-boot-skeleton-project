@@ -18,6 +18,7 @@
     <minio.version>8.4.3</minio.version>
     <springdoc.version>2.0.2</springdoc.version>
     <joda-time.version>2.12.1</joda-time.version>
+    <caffeine.version>3.1.2</caffeine.version>
   </properties>
 
   <dependencyManagement>
@@ -41,6 +42,11 @@
         <groupId>io.minio</groupId>
         <artifactId>minio</artifactId>
         <version>${minio.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.github.ben-manes.caffeine</groupId>
+        <artifactId>caffeine</artifactId>
+        <version>${caffeine.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

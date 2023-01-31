@@ -90,6 +90,10 @@
       <groupId>net.sf.cssbox</groupId>
       <artifactId>pdf2dom</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
