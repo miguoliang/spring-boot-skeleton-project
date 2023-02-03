@@ -26,6 +26,9 @@ spring:
           enabled: true
   profiles:
     active: @activatedProfile@
+  batch:
+    jdbc:
+      initialize-schema: always
 
 minio:
   endpoint: http://${MINIO_HOST:localhost}:${MINIO_PORT:9000}/
@@ -46,6 +49,8 @@ app:
       password: ${MYSQL_ROOT_PASSWORD:example}
       driver-class-name: org.postgresql.Driver
       dialect: org.hibernate.dialect.PostgreSQLDialect
+      liquibase:
+        enabled: false
   kafka:
     minio:
       consumer:
@@ -61,3 +66,7 @@ app:
       core-pool-size: 5
       max-pool-size: 10
       queue-capability: 10
+
+logging:
+  level:
+    root: debug

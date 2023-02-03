@@ -90,6 +90,11 @@
       <groupId>net.sf.cssbox</groupId>
       <artifactId>pdf2dom</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.muchencute</groupId>
+      <artifactId>biz-model</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
