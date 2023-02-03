@@ -21,10 +21,10 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-    repositoryBaseClass = BaseRepositoryImpl.class,
-    basePackages = "com.muchencute.biz.repository",
-    entityManagerFactoryRef = "bizEntityManager",
-    transactionManagerRef = "bizTransactionManager")
+        repositoryBaseClass = BaseRepositoryImpl.class,
+        basePackages = "com.muchencute.biz.repository",
+        entityManagerFactoryRef = "bizEntityManager",
+        transactionManagerRef = "bizTransactionManager")
 public class Biz {
 
   private final Environment environment;
@@ -36,7 +36,7 @@ public class Biz {
   }
 
   private static SpringLiquibase springLiquibase(DataSource dataSource,
-      LiquibaseProperties properties) {
+                                                 LiquibaseProperties properties) {
 
     final var liquibase = new SpringLiquibase();
     liquibase.setDataSource(dataSource);
@@ -63,9 +63,9 @@ public class Biz {
   public HikariDataSource bizDataSource() {
 
     return bizDataSourceProperties()
-        .initializeDataSourceBuilder()
-        .type(HikariDataSource.class)
-        .build();
+            .initializeDataSourceBuilder()
+            .type(HikariDataSource.class)
+            .build();
   }
 
   @Bean
@@ -75,13 +75,14 @@ public class Biz {
     final var operator = environment.getProperty("app.ddl-auto", "none");
     final var showSql = environment.getProperty("app.show-sql", "false");
     LocalContainerEntityManagerFactoryBean em
-        = new LocalContainerEntityManagerFactoryBean();
+            = new LocalContainerEntityManagerFactoryBean();
     em.setDataSource(bizDataSource());
     em.setPackagesToScan("com.muchencute.biz.model");
     em.setJpaVendorAdapter(bizHibernateJpaVendorAdapter());
     em.setJpaPropertyMap(Map.of(
-        "hibernate.hbm2ddl.auto", operator,
-        "hibernate.show_sql", showSql
+            "hibernate.hbm2ddl.auto", operator,
+            "hibernate.show_sql", showSql,
+            "jakarta.persistence.sharedCache.mode", "UNSPECIFIED"
     ));
     return em;
   }
@@ -94,7 +95,7 @@ public class Biz {
     hibernateJpaVendorAdapter.setShowSql(true);
     hibernateJpaVendorAdapter.setGenerateDdl(true);
     hibernateJpaVendorAdapter.setDatabasePlatform(
-        environment.getProperty("app.datasource.biz.dialect"));
+            environment.getProperty("app.datasource.biz.dialect"));
     return hibernateJpaVendorAdapter;
   }
 
@@ -103,9 +104,9 @@ public class Biz {
   public JpaTransactionManager bizTransactionManager() {
 
     JpaTransactionManager transactionManager
-        = new JpaTransactionManager();
+            = new JpaTransactionManager();
     transactionManager.setEntityManagerFactory(
-        bizEntityManager().getObject());
+            bizEntityManager().getObject());
     return transactionManager;
   }
 

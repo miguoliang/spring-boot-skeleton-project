@@ -19,10 +19,10 @@
             </div>
           </div>
           <div class="form-item vertical"><label class="form-label mb-2">Password</label>
-            <div class=""><span class="input-wrapper "><input
+            <div class=""><span class="input-wrapper "><input id="password"
                         class="input input-md h-11 focus:ring-indigo-600 focus-within:ring-indigo-600 focus-within:border-indigo-600 focus:border-indigo-600"
                         type="password" name="password" autocomplete="off" placeholder="Password" value="123Qwe"
-                        style="padding-right: 2.25rem;"><div class="input-suffix-end"><span
+                        style="padding-right: 2.25rem;"><div class="input-suffix-end" onclick="togglePasswordVisibility('password')"><span
                           class="cursor-pointer text-xl"><svg stroke="currentColor" fill="none" stroke-width="0"
                                                               viewBox="0 0 24 24" height="1em" width="1em"
                                                               xmlns="http://www.w3.org/2000/svg"><path

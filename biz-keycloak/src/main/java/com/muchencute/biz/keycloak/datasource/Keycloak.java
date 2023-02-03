@@ -45,7 +45,8 @@ public class Keycloak {
     em.setJpaVendorAdapter(keycloakHibernateJpaVendorAdapter());
     em.setJpaPropertyMap(Map.of(
             "hibernate.hbm2ddl.auto", "none",
-            "hibernate.show_sql", "false"
+            "hibernate.show_sql", "false",
+            "jakarta.persistence.sharedCache.mode", "UNSPECIFIED"
     ));
     return em;
   }

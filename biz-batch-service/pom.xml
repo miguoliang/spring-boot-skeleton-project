@@ -91,9 +91,8 @@
       <artifactId>pdf2dom</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.muchencute</groupId>
-      <artifactId>biz-model</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
     </dependency>
   </dependencies>
 
