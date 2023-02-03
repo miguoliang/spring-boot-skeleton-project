@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -68,11 +69,29 @@ public class Biz {
             .build();
   }
 
+  @Bean(name = "bizEntityManager")
+  @Primary
+  @Profile("test")
+  public LocalContainerEntityManagerFactoryBean bizEntityManagerForTest() {
+
+    final var showSql = environment.getProperty("app.show-sql", "false");
+    LocalContainerEntityManagerFactoryBean em
+            = new LocalContainerEntityManagerFactoryBean();
+    em.setDataSource(bizDataSource());
+    em.setPackagesToScan("com.singhand.sd.tpservice.bizmodel.model");
+    em.setJpaVendorAdapter(bizHibernateJpaVendorAdapter());
+    em.setJpaPropertyMap(Map.of(
+            // 因为 H2 和 PostgresSQL 的大文本类型不一致，因此不能开启 validate，否则会出异常
+            "hibernate.hbm2ddl.auto", "none",
+            "hibernate.show_sql", showSql
+    ));
+    return em;
+  }
+
   @Bean
   @Primary
   public LocalContainerEntityManagerFactoryBean bizEntityManager() {
 
-    final var operator = environment.getProperty("app.ddl-auto", "none");
     final var showSql = environment.getProperty("app.show-sql", "false");
     LocalContainerEntityManagerFactoryBean em
             = new LocalContainerEntityManagerFactoryBean();
@@ -80,9 +99,8 @@ public class Biz {
     em.setPackagesToScan("com.muchencute.biz.model");
     em.setJpaVendorAdapter(bizHibernateJpaVendorAdapter());
     em.setJpaPropertyMap(Map.of(
-            "hibernate.hbm2ddl.auto", operator,
-            "hibernate.show_sql", showSql,
-            "jakarta.persistence.sharedCache.mode", "UNSPECIFIED"
+            "hibernate.hbm2ddl.auto", "validate",
+            "hibernate.show_sql", showSql
     ));
     return em;
   }

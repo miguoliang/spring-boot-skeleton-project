@@ -34,7 +34,7 @@ services:
       # 参考文献 https://www.keycloak.org/server/hostname
       - KEYCLOAK_EXTRA_ARGS=--hostname-strict-https=false -Dkeycloak.import=/tmp/realm.json --spi-theme-static-max-age=-1 --spi-theme-cache-themes=false --spi-theme-cache-templates=false
     ports:
-      - "80:8080"
+      - "8080:8080"
     volumes:
       - ./init-keycloak/realm.json:/tmp/realm.json
       - ./init-keycloak/biz-theme:/opt/bitnami/keycloak/themes/biz-theme

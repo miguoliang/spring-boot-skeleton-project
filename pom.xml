@@ -104,15 +104,16 @@
           <artifactId>liquibase-maven-plugin</artifactId>
           <version>${liquibase-hibernate6.version}</version>
           <configuration>
-            <changeLogFile>master.xml</changeLogFile>
+            <changeLogFile>db/changelog/changelog-master.xml</changeLogFile>
+            <outputChangeLogFile>src/main/resources/db/changelog/changelog-1.0.0.xml
+            </outputChangeLogFile>
             <diffChangeLogFile>
-              ${project.basedir}/src/main/resources/db/migrations/${maven.build.timestamp}_changelog.xml
+              src/main/resources/db/changelog/changelog-${maven.build.timestamp}.xml
             </diffChangeLogFile>
             <url>jdbc:postgresql://localhost:5432/biz</url>
             <username>root</username>
             <password>example</password>
             <referenceUrl>hibernate:ejb3:liquibase</referenceUrl>
-            <searchPath>${project.basedir}/src/main/resources/db/migrations/</searchPath>
           </configuration>
           <dependencies>
             <dependency>
@@ -134,11 +135,6 @@
               <groupId>jakarta.validation</groupId>
               <artifactId>jakarta.validation-api</artifactId>
               <version>${jakarta-validation.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.javassist</groupId>
-              <artifactId>javassist</artifactId>
-              <version>${javassist.version}</version>
             </dependency>
             <dependency>
               <groupId>org.springframework.boot</groupId>

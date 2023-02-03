@@ -67,7 +67,7 @@ app:
       driver-class-name: org.postgresql.Driver
       dialect: org.hibernate.dialect.PostgreSQLDialect
       liquibase:
-        change-log: db/migrations/20230106075819_changelog.xml
+        change-log: db/changelog/changelog-master.xml
     keycloak:
       url: jdbc:postgresql://${MYSQL_HOST:localhost}:5432/keycloak
       jdbcUrl: jdbc:postgresql://${MYSQL_HOST:localhost}:5432/keycloak
@@ -75,5 +75,4 @@ app:
       password: ${MYSQL_ROOT_PASSWORD:example}
       driver-class-name: org.postgresql.Driver
       dialect: org.hibernate.dialect.PostgreSQLDialect
-  ddl-auto: none
   show-sql: true
