@@ -302,7 +302,6 @@
           "attributes" : {}
         }
       ],
-      "test" : [],
       "console-cli" : [
         {
           "id" : "95462f2f-2236-4b82-86b3-585f0e45fd49",
@@ -573,12 +572,6 @@
       "clientScope" : "user:crud",
       "roles" : [
         "super_admin"
-      ]
-    },
-    {
-      "clientScope" : "offline_access",
-      "roles" : [
-        "offline_access"
       ]
     },
     {
@@ -1189,7 +1182,6 @@
         "acr",
         "report:export",
         "report_template:crud",
-        "offline_access",
         "department:crud",
         "document_template:crud",
         "work_order:read",
@@ -1409,81 +1401,6 @@
       ],
       "defaultClientScopes" : [
         "profile"
-      ],
-      "optionalClientScopes" : []
-    },
-    {
-      "id" : "d20c3abf-d66d-4b53-915f-5ccdb8affeaf",
-      "clientId" : "test",
-      "name" : "",
-      "description" : "",
-      "surrogateAuthRequired" : false,
-      "enabled" : true,
-      "alwaysDisplayInConsole" : false,
-      "clientAuthenticatorType" : "client-secret",
-      "redirectUris" : [],
-      "webOrigins" : [],
-      "notBefore" : 0,
-      "bearerOnly" : false,
-      "consentRequired" : false,
-      "standardFlowEnabled" : true,
-      "implicitFlowEnabled" : false,
-      "directAccessGrantsEnabled" : false,
-      "serviceAccountsEnabled" : false,
-      "publicClient" : true,
-      "frontchannelLogout" : true,
-      "protocol" : "openid-connect",
-      "attributes" : {
-        "oidc.ciba.grant.enabled" : "false",
-        "oauth2.device.authorization.grant.enabled" : "false",
-        "backchannel.logout.session.required" : "true",
-        "backchannel.logout.revoke.offline.tokens" : "false"
-      },
-      "authenticationFlowBindingOverrides" : {},
-      "fullScopeAllowed" : true,
-      "nodeReRegistrationTimeout" : -1,
-      "defaultClientScopes" : [
-        "vertex:check",
-        "roles",
-        "research:crud",
-        "document:crud",
-        "evaluation:delete",
-        "datasource:delete",
-        "user:reset_password",
-        "user:check",
-        "acr",
-        "report:export",
-        "report_template:crud",
-        "offline_access",
-        "department:crud",
-        "document_template:crud",
-        "work_order:read",
-        "evaluation:read",
-        "report:read",
-        "document:read",
-        "confidence:read",
-        "user:crud",
-        "profile",
-        "data:read",
-        "document:export",
-        "log:read",
-        "data:control",
-        "datasource:import",
-        "vertex:export",
-        "document:import",
-        "role:crud",
-        "research:export",
-        "document_label:crud",
-        "report:crud",
-        "data:check",
-        "log:export",
-        "datasource:read",
-        "data_clean:etl",
-        "work_order:crud",
-        "data:import",
-        "work_order:import_and_export",
-        "evaluation:import_and_export",
-        "confluence:switch"
       ],
       "optionalClientScopes" : []
     }
