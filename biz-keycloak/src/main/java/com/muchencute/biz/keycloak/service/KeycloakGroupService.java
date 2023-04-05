@@ -2,6 +2,7 @@ package com.muchencute.biz.keycloak.service;
 
 import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
 import com.muchencute.biz.keycloak.model.Group;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -76,12 +77,9 @@ public class KeycloakGroupService {
 
   public Group getGroup(String id) {
 
-    final var groupResource = keycloakService.getGroupResource(id);
-    final var groupRepresentation = groupResource.toRepresentation();
-    return Group.builder()
-      .id(groupRepresentation.getId())
-      .name(groupRepresentation.getName())
-      .build();
+    final var groupEntity = keycloakGroupRepository.findById(id)
+      .orElseThrow(() -> new EntityNotFoundException("Group not found"));
+    return new Group(groupEntity.getId(), groupEntity.getName(), groupEntity.getParentGroup());
   }
 
   public List<Group> getGroups() {

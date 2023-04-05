@@ -2,8 +2,10 @@ package com.muchencute.biz.service.integration.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.muchencute.biz.keycloak.model.Group;
 import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
 import com.muchencute.biz.keycloak.request.MoveGroupRequest;
+import com.muchencute.biz.keycloak.request.RenameGroupRequest;
 import com.muchencute.biz.keycloak.service.KeycloakGroupService;
 import com.muchencute.test.environment.KeycloakTestEnvironment;
 import com.muchencute.test.environment.mock.MockGroup;
@@ -15,10 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
+import java.nio.charset.StandardCharsets;
+
 import static org.hamcrest.Matchers.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -87,5 +90,113 @@ class GroupControllerTest extends KeycloakTestEnvironment {
       .andExpect(jsonPath("$.[?(@.name=='group_a')].parentId", contains(" ")))
       .andExpect(jsonPath("$.[?(@.name=='group_1')].parentId", hasSize(1)))
       .andExpect(jsonPath("$.[?(@.name=='group_1')].parentId", contains(targetGroup.getId())));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  void group_exists() {
+
+    mockMvc.perform(head("/group")
+        .param("name", "group_1"))
+      .andExpect(status().isOk())
+      .andDo(document("group/stat/exists"));
+  }
+
+  @Test
+  @SneakyThrows
+  void group_not_exists() {
+    mockMvc.perform(head("/group")
+        .param("name", "group_1"))
+      .andExpect(status().isNotFound())
+      .andDo(document("group/stat/not_exists"));
+  }
+
+  @Test
+  @SneakyThrows
+  void new_root_group() {
+
+    final var newGroup = new Group();
+    newGroup.setName("group_1");
+
+    final var responseText = mockMvc.perform(post("/group")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(newGroup)))
+      .andExpect(status().isCreated())
+      .andDo(document("group/new/new_root_group"))
+      .andReturn()
+      .getResponse()
+      .getContentAsString(StandardCharsets.UTF_8);
+
+    final var responseGroup = objectMapper.readValue(responseText, Group.class);
+    Assertions.assertFalse(StrUtil.isBlank(responseGroup.getId()));
+    Assertions.assertEquals("group_1", responseGroup.getName());
+    Assertions.assertNull(responseGroup.getParentId());
+
+    mockMvc.perform(get("/group/" + responseGroup.getId()))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_root")
+  void new_child_group() {
+
+    final var newGroup = new Group();
+    newGroup.setName("group_child");
+    final var rootGroupId = keycloakGroupRepository.findByName("group_root").orElseThrow().getId();
+    newGroup.setParentId(rootGroupId);
+
+    final var responseText = mockMvc.perform(post("/group")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(newGroup)))
+      .andExpect(status().isCreated())
+      .andDo(document("group/new/new_child_group"))
+      .andReturn()
+      .getResponse()
+      .getContentAsString(StandardCharsets.UTF_8);
+
+    final var responseGroup = objectMapper.readValue(responseText, Group.class);
+    Assertions.assertFalse(StrUtil.isBlank(responseGroup.getId()));
+    Assertions.assertEquals("group_child", responseGroup.getName());
+    Assertions.assertEquals(rootGroupId, responseGroup.getParentId());
+
+    mockMvc.perform(get("/group/" + responseGroup.getId()))
+      .andExpect(status().isOk());
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  void renameGroup() {
+
+    final var renameGroup = new RenameGroupRequest();
+    renameGroup.setNewGroupName("group_2");
+
+    final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
+    mockMvc.perform(post("/group/" + groupId + ":rename")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(renameGroup)))
+      .andExpect(status().isOk())
+      .andDo(document("group/rename"))
+      .andReturn()
+      .getResponse()
+      .getContentAsString(StandardCharsets.UTF_8);
+
+    mockMvc.perform(get("/group/" + groupId))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.name", equalTo("group_2")));
+  }
+
+  @Test
+  void getGroup() {
+  }
+
+  @Test
+  void getGroups() {
+  }
+
+  @Test
+  void deleteGroup() {
   }
 }

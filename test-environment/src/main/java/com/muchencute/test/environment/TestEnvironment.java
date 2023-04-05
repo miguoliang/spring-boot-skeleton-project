@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * API 测试基类。 该类对于 Keycloak 和 Minio 系统的相关 Bean 进行了 Mock 处理。
@@ -65,6 +66,7 @@ abstract class TestEnvironment {
 
     this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
       .apply(documentationConfiguration(restDocumentationContextProvider))
+      .alwaysDo(print())
       .alwaysDo(document("{method-name}",
         preprocessRequest(prettyPrint()),
         preprocessResponse(prettyPrint())))

@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +60,7 @@ public class GroupController {
   @PostMapping
   @Operation(summary = "新建部门")
   @PreAuthorize("hasAnyAuthority('group:crud')")
+  @ResponseStatus(code = HttpStatus.CREATED)
   public Group newGroup(@RequestBody Group group) {
 
     return keycloakGroupService.newGroup(group);
@@ -70,7 +72,6 @@ public class GroupController {
     targetId = @Resolve("request.path.id"),
     targetName = @Resolve("response.name"),
     targetType = @Resolve("'部门'"))
-  @PutMapping("/{id}")
   @Operation(summary = "编辑部门")
   @PostMapping("/{id}:rename")
   @PreAuthorize("hasAnyAuthority('group:crud')")
