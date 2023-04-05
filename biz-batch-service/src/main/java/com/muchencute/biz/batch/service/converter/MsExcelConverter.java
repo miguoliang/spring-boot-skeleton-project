@@ -6,7 +6,6 @@ import com.muchencute.biz.batch.service.converter.html.ToHtml;
 import lombok.Cleanup;
 import lombok.SneakyThrows;
 import org.apache.poi.hssf.converter.ExcelToHtmlConverter;
-import org.apache.poi.hssf.converter.ExcelToHtmlUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
@@ -93,10 +92,9 @@ public class MsExcelConverter {
     @Cleanup final var outputStream = FileUtil.getOutputStream(tempFile);
     @Cleanup final var excel = new HSSFWorkbook(FileUtil.getInputStream(excelPath));
     excel.write(outputStream);
-    final var excelDoc = ExcelToHtmlUtils.loadXls(tempFile);
     final var converter = new ExcelToHtmlConverter(
-            DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument());
-    converter.processWorkbook(excelDoc);
+      DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument());
+    converter.processWorkbook(excel);
     final var htmlDoc = converter.getDocument();
     @Cleanup final var out = new ByteArrayOutputStream();
     final var domSource = new DOMSource(htmlDoc);

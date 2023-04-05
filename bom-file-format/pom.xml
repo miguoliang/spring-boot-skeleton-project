@@ -17,7 +17,7 @@
     <poi.version>5.2.3</poi.version>
     <pdf2dom.version>2.0.3</pdf2dom.version>
     <pdfbox.version>2.0.27</pdfbox.version>
-    <zip4j.version>2.9.0</zip4j.version>
+    <zip4j.version>2.11.5</zip4j.version>
   </properties>
 
   <dependencyManagement>
@@ -40,6 +40,11 @@
       <dependency>
         <groupId>org.apache.poi</groupId>
         <artifactId>poi-ooxml</artifactId>
+        <version>${poi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml-full</artifactId>
         <version>${poi.version}</version>
       </dependency>
       <dependency>
