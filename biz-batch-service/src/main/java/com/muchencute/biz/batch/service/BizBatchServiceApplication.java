@@ -17,8 +17,8 @@ public class BizBatchServiceApplication {
   public static void main(String[] args) {
 
     final var context = SpringApplication.run(BizBatchServiceApplication.class, args);
-    System.out.println(">>> Datasource instance: " + context.getBean("dataSource"));
-    System.out.println(">>> TransactionManager instance: " + context.getBean("transactionManager"));
+    log.debug(">>> Datasource instance: " + context.getBean("dataSource"));
+    log.debug(">>> TransactionManager instance: " + context.getBean("transactionManager"));
     postLaunch(context);
   }
 
