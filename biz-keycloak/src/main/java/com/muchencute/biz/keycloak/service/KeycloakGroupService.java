@@ -29,24 +29,24 @@ public class KeycloakGroupService {
 
     if (groupId == null) {
       return keycloakGroupRepository
-              .findAll()
-              .stream()
-              .map(it -> Group.builder()
-                      .id(it.getId())
-                      .name(it.getName())
-                      .build())
-              .toList();
+        .findAll()
+        .stream()
+        .map(it -> Group.builder()
+          .id(it.getId())
+          .name(it.getName())
+          .build())
+        .toList();
     }
 
     final var result = new LinkedList<Group>();
     final var groups = keycloakGroupRepository
-            .findAllByParentGroup(groupId)
-            .stream()
-            .map(it -> Group.builder()
-                    .id(it.getId())
-                    .name(it.getName())
-                    .build())
-            .toList();
+      .findAllByParentGroup(groupId)
+      .stream()
+      .map(it -> Group.builder()
+        .id(it.getId())
+        .name(it.getName())
+        .build())
+      .toList();
     for (final var group : groups) {
       result.addAll(getPosterity(group.getId()));
     }
@@ -57,7 +57,7 @@ public class KeycloakGroupService {
   public Group newGroup(Group group) {
 
     final var groupResource = keycloakService.newGroupResource(group.getName(),
-            group.getParentId());
+      group.getParentId());
     final var groupRepresentation = groupResource.toRepresentation();
     return getGroup(groupRepresentation.getId());
   }
@@ -79,22 +79,22 @@ public class KeycloakGroupService {
     final var groupResource = keycloakService.getGroupResource(id);
     final var groupRepresentation = groupResource.toRepresentation();
     return Group.builder()
-            .id(groupRepresentation.getId())
-            .name(groupRepresentation.getName())
-            .build();
+      .id(groupRepresentation.getId())
+      .name(groupRepresentation.getName())
+      .build();
   }
 
   public List<Group> getGroups() {
 
     return keycloakGroupRepository
-            .findAll()
-            .stream()
-            .map(it -> Group.builder()
-                    .id(it.getId())
-                    .name(it.getName())
-                    .parentId(it.getParentGroup())
-                    .build())
-            .toList();
+      .findAll()
+      .stream()
+      .map(it -> Group.builder()
+        .id(it.getId())
+        .name(it.getName())
+        .parentId(it.getParentGroup())
+        .build())
+      .toList();
   }
 
   public void deleteGroup(String id) {

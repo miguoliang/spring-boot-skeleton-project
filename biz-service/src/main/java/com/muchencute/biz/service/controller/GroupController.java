@@ -22,7 +22,7 @@ import java.util.List;
 
 @Tag(name = "部门管理")
 @RestController
-@RequestMapping("department")
+@RequestMapping("group")
 public class GroupController {
 
   private final KeycloakGroupService keycloakGroupService;
@@ -38,12 +38,12 @@ public class GroupController {
   }
 
   @RequestMapping(method = RequestMethod.HEAD)
-  @PreAuthorize("hasAnyAuthority('department:crud')")
+  @PreAuthorize("hasAnyAuthority('group:crud')")
   public ResponseEntity<?> statGroup(@RequestParam String name,
                                      @RequestParam(required = false) String parentId) {
 
     if (groupRepository.exists(Example.of(KeycloakGroup.builder()
-            .name(name).parentGroup(parentId).build()))) {
+      .name(name).parentGroup(parentId).build()))) {
       return ResponseEntity.ok().build();
     } else {
       return ResponseEntity.notFound().build();
@@ -51,29 +51,29 @@ public class GroupController {
   }
 
   @BizLogger(module = "部门管理", type = "新建",
-          contentFormat = "新建部门【%s】",
-          contentFormatArguments = @Resolve("response.name"),
-          targetId = @Resolve("response.id"),
-          targetName = @Resolve("response.name"),
-          targetType = @Resolve("'部门'"))
+    contentFormat = "新建部门【%s】",
+    contentFormatArguments = @Resolve("response.name"),
+    targetId = @Resolve("response.id"),
+    targetName = @Resolve("response.name"),
+    targetType = @Resolve("'部门'"))
   @PostMapping
   @Operation(summary = "新建部门")
-  @PreAuthorize("hasAnyAuthority('department:crud')")
+  @PreAuthorize("hasAnyAuthority('group:crud')")
   public Group newGroup(@RequestBody Group group) {
 
     return keycloakGroupService.newGroup(group);
   }
 
   @BizLogger(module = "部门管理", type = "编辑",
-          contentFormat = "编辑部门【%s】",
-          contentFormatArguments = @Resolve("response.name"),
-          targetId = @Resolve("request.path.id"),
-          targetName = @Resolve("response.name"),
-          targetType = @Resolve("'部门'"))
+    contentFormat = "编辑部门【%s】",
+    contentFormatArguments = @Resolve("response.name"),
+    targetId = @Resolve("request.path.id"),
+    targetName = @Resolve("response.name"),
+    targetType = @Resolve("'部门'"))
   @PutMapping("/{id}")
   @Operation(summary = "编辑部门")
   @PostMapping("/{id}:rename")
-  @PreAuthorize("hasAnyAuthority('department:crud')")
+  @PreAuthorize("hasAnyAuthority('group:crud')")
   public Group renameGroup(@PathVariable String id, @RequestBody RenameGroupRequest request) {
 
     return keycloakGroupService.renameGroup(id, request.getNewGroupName());
@@ -81,7 +81,7 @@ public class GroupController {
 
   @Operation(summary = "移动部门")
   @PostMapping("/{id}:move")
-  @PreAuthorize("hasAnyAuthority('department:crud')")
+  @PreAuthorize("hasAnyAuthority('group:crud')")
   public Group moveGroup(@PathVariable String id, @RequestBody MoveGroupRequest request) {
 
     return keycloakGroupService.moveGroup(id, request.getParentId());
@@ -89,7 +89,7 @@ public class GroupController {
 
   @GetMapping("/{id}")
   @Operation(summary = "查看部门")
-  @PreAuthorize("hasAnyAuthority('department:crud')")
+  @PreAuthorize("hasAnyAuthority('group:crud')")
   public Group getGroup(@PathVariable String id) {
 
     return keycloakGroupService.getGroup(id);
@@ -104,14 +104,14 @@ public class GroupController {
   }
 
   @BizLogger(module = "部门管理", type = "删除",
-          contentFormat = "删除部门【%s】",
-          contentFormatArguments = @Resolve(value = "request.path.id", resolver = GetNameByGroupIdResolver.class),
-          targetId = @Resolve("request.path.id"),
-          targetName = @Resolve("response.name"),
-          targetType = @Resolve("'部门'"))
+    contentFormat = "删除部门【%s】",
+    contentFormatArguments = @Resolve(value = "request.path.id", resolver = GetNameByGroupIdResolver.class),
+    targetId = @Resolve("request.path.id"),
+    targetName = @Resolve("response.name"),
+    targetType = @Resolve("'部门'"))
   @DeleteMapping("/{id}")
   @Operation(summary = "删除部门")
-  @PreAuthorize("hasAnyAuthority('department:crud')")
+  @PreAuthorize("hasAnyAuthority('group:crud')")
   public void deleteGroup(@PathVariable String id) {
 
     keycloakGroupService.deleteGroup(id);

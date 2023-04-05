@@ -15,11 +15,9 @@ services:
       - biz-postgres-data:/var/lib/postgresql/data
 
   keycloak:
-    image: bitnami/keycloak:20.0.3-debian-11-r8
+    image: bitnami/keycloak:21.0.2-debian-11-r1
     restart: always
     environment:
-      - BASE_URL=http://localhost:3000/
-      - APP_NAME=XXXX系统
       - KEYCLOAK_DATABASE_HOST=postgres
       - KEYCLOAK_CREATE_ADMIN_USER=true
       - KEYCLOAK_ADMIN_USER=admin
@@ -38,7 +36,6 @@ services:
     volumes:
       - ./init-keycloak/realm.json:/tmp/realm.json
       - ./init-keycloak/biz-theme:/opt/bitnami/keycloak/themes/biz-theme
-      - ./keycloak-idp-wechat/target/keycloak-idp-wechat-20.0.2.jar:/opt/bitnami/keycloak/providers/keycloak-idp-wechat.jar
     depends_on:
       - postgres
 
@@ -89,6 +86,6 @@ services:
 
 volumes:
   biz-minio-data:
-    external: false
+    external: true
   biz-postgres-data:
-    external: false
+    external: true

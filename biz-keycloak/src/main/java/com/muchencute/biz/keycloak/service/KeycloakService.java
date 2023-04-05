@@ -99,10 +99,10 @@ public class KeycloakService {
 
     final var usersResource = getUsersResource();
     final var ur = usersResource
-            .search(username)
-            .stream()
-            .findFirst()
-            .orElseThrow(() -> new EntityNotFoundException("用户不存在！"));
+      .search(username)
+      .stream()
+      .findFirst()
+      .orElseThrow(() -> new EntityNotFoundException("用户不存在！"));
     return usersResource.get(ur.getId());
   }
 
@@ -157,10 +157,11 @@ public class KeycloakService {
   public void moveGroupResource(String id, String parentId) {
 
     final var child = getGroupsResource().group(id).toRepresentation();
-    if (parentId == null) {
-      getRealmResource().groups().add(child);
-    } else {
+    @Cleanup final var response = parentId == null ?
+      getRealmResource().groups().add(child) :
       getGroupsResource().group(parentId).subGroup(child);
+    if (response.getStatus() != 204) {
+      throw new RuntimeException("移动分组失败！" + response.getStatusInfo().getReasonPhrase() + " " + response.getStatus());
     }
   }
 
@@ -198,11 +199,11 @@ public class KeycloakService {
   public void joinGroup(String userId, String groupId) {
 
     userEntityRepository.findById(userId)
-            .orElseThrow(() -> new EntityNotFoundException("用户不存在！"));
+      .orElseThrow(() -> new EntityNotFoundException("用户不存在！"));
     final var userResource = getUserResourceById(userId);
     if (groupId != null) {
       keycloakGroupRepository.findById(groupId)
-              .orElseThrow(() -> new EntityNotFoundException("部门不存在！"));
+        .orElseThrow(() -> new EntityNotFoundException("部门不存在！"));
       userResource.joinGroup(groupId);
     } else {
       userResource.groups().forEach(it -> userResource.leaveGroup(it.getId()));
@@ -212,9 +213,9 @@ public class KeycloakService {
   public void attachRoleResource(String username, RoleRepresentation roleRepresentation) {
 
     getUserResource(username)
-            .roles()
-            .clientLevel(ID_OF_CLIENT)
-            .add(List.of(roleRepresentation));
+      .roles()
+      .clientLevel(ID_OF_CLIENT)
+      .add(List.of(roleRepresentation));
   }
 
   public void detachAllRoleResourceByUserId(String userId) {
@@ -234,36 +235,36 @@ public class KeycloakService {
   public void detachRoleResource(String username, RoleRepresentation roleRepresentation) {
 
     getUserResource(username)
-            .roles()
-            .clientLevel(ID_OF_CLIENT)
-            .remove(List.of(roleRepresentation));
+      .roles()
+      .clientLevel(ID_OF_CLIENT)
+      .remove(List.of(roleRepresentation));
   }
 
   public void addScopeMapping(String idOfScope, RoleRepresentation roleRepresentation) {
 
     getClientScopesResource()
-            .get(idOfScope)
-            .getScopeMappings()
-            .clientLevel(ID_OF_CLIENT)
-            .add(List.of(roleRepresentation));
+      .get(idOfScope)
+      .getScopeMappings()
+      .clientLevel(ID_OF_CLIENT)
+      .add(List.of(roleRepresentation));
   }
 
   public void addRealmScopeMapping(String idOfScope, RoleRepresentation roleRepresentation) {
 
     getClientScopesResource()
-            .get(idOfScope)
-            .getScopeMappings()
-            .realmLevel()
-            .add(List.of(roleRepresentation));
+      .get(idOfScope)
+      .getScopeMappings()
+      .realmLevel()
+      .add(List.of(roleRepresentation));
   }
 
   public void removeScopeMapping(String idOfScope, RoleRepresentation roleRepresentation) {
 
     getClientScopesResource()
-            .get(idOfScope)
-            .getScopeMappings()
-            .clientLevel(ID_OF_CLIENT)
-            .remove(List.of(roleRepresentation));
+      .get(idOfScope)
+      .getScopeMappings()
+      .clientLevel(ID_OF_CLIENT)
+      .remove(List.of(roleRepresentation));
   }
 
   public void attachScopes(Collection<String> scopes, RoleRepresentation rr) {
@@ -274,50 +275,50 @@ public class KeycloakService {
   public void attachScopes(Collection<String> scopes, RoleRepresentation rr, boolean isRealmLevel) {
 
     getClientResource()
-            .getDefaultClientScopes()
-            .stream()
-            .filter(it -> scopes.contains(it.getName()))
-            .forEach(it -> {
-              if (isRealmLevel) {
-                addRealmScopeMapping(it.getId(), rr);
-              } else {
-                addScopeMapping(it.getId(), rr);
-              }
-            });
+      .getDefaultClientScopes()
+      .stream()
+      .filter(it -> scopes.contains(it.getName()))
+      .forEach(it -> {
+        if (isRealmLevel) {
+          addRealmScopeMapping(it.getId(), rr);
+        } else {
+          addScopeMapping(it.getId(), rr);
+        }
+      });
   }
 
   public void detachScopes(Collection<String> scopes, RoleRepresentation rr) {
 
     getClientResource()
-            .getDefaultClientScopes()
-            .stream()
-            .filter(it -> scopes.contains(it.getName()))
-            .forEach(it -> removeScopeMapping(it.getId(), rr));
+      .getDefaultClientScopes()
+      .stream()
+      .filter(it -> scopes.contains(it.getName()))
+      .forEach(it -> removeScopeMapping(it.getId(), rr));
   }
 
   public Set<String> getScopesByRole(String roleName) {
 
     return getClientResource()
-            .getDefaultClientScopes()
-            .stream()
-            .filter(it -> getClientScopesResource().
-                    get(it.getId())
-                    .getScopeMappings()
-                    .clientLevel(ID_OF_CLIENT)
-                    .listAll()
-                    .stream()
-                    .anyMatch(role -> role.getName().equals(roleName)))
-            .map(ClientScopeRepresentation::getName)
-            .collect(Collectors.toSet());
+      .getDefaultClientScopes()
+      .stream()
+      .filter(it -> getClientScopesResource().
+        get(it.getId())
+        .getScopeMappings()
+        .clientLevel(ID_OF_CLIENT)
+        .listAll()
+        .stream()
+        .anyMatch(role -> role.getName().equals(roleName)))
+      .map(ClientScopeRepresentation::getName)
+      .collect(Collectors.toSet());
   }
 
   public ClientScopeResource getClientScopeResource(String scopeName) {
 
     final var clientScopeRepresentation = getClientScopesResource()
-            .findAll()
-            .stream().filter(it -> it.getName().equals(scopeName))
-            .findFirst()
-            .orElseThrow();
+      .findAll()
+      .stream().filter(it -> it.getName().equals(scopeName))
+      .findFirst()
+      .orElseThrow();
     return getClientScopesResource().get(clientScopeRepresentation.getId());
   }
 
@@ -325,9 +326,9 @@ public class KeycloakService {
 
     final var roleRepresentation = getClientRoleResource(roleName).toRepresentation();
     getUserResourceById(id)
-            .roles()
-            .clientLevel(ID_OF_CLIENT)
-            .add(List.of(roleRepresentation));
+      .roles()
+      .clientLevel(ID_OF_CLIENT)
+      .add(List.of(roleRepresentation));
   }
 
   public void acceptUser(String id, String roleName, String memo) {

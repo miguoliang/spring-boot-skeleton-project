@@ -78,7 +78,7 @@ public class Biz {
     LocalContainerEntityManagerFactoryBean em
             = new LocalContainerEntityManagerFactoryBean();
     em.setDataSource(bizDataSource());
-    em.setPackagesToScan("com.singhand.sd.tpservice.bizmodel.model");
+    em.setPackagesToScan("com.muchencute.biz.model");
     em.setJpaVendorAdapter(bizHibernateJpaVendorAdapter());
     em.setJpaPropertyMap(Map.of(
             // 因为 H2 和 PostgresSQL 的大文本类型不一致，因此不能开启 validate，否则会出异常

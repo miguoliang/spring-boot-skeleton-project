@@ -54,13 +54,13 @@ public class RoleController {
   }
 
   @BizLogger(
-          module = "角色管理",
-          type = "新建",
-          contentFormat = "新建角色【%s】",
-          contentFormatArguments = @Resolve("response.name"),
-          targetId = @Resolve("response.name"),
-          targetName = @Resolve("response.name"),
-          targetType = @Resolve("'角色'"))
+    module = "角色管理",
+    type = "新建",
+    contentFormat = "新建角色【%s】",
+    contentFormatArguments = @Resolve("response.name"),
+    targetId = @Resolve("response.name"),
+    targetName = @Resolve("response.name"),
+    targetType = @Resolve("'角色'"))
   @PostMapping
   @PreAuthorize("hasAnyAuthority('role:crud')")
   public Role newRole(@Valid @RequestBody NewRoleRequest newRoleRequest) {
@@ -69,13 +69,13 @@ public class RoleController {
   }
 
   @BizLogger(
-          module = "角色管理",
-          type = "编辑",
-          contentFormat = "编辑角色【%s】",
-          contentFormatArguments = @Resolve("response.name"),
-          targetId = @Resolve("response.name"),
-          targetName = @Resolve("response.name"),
-          targetType = @Resolve("'角色'"))
+    module = "角色管理",
+    type = "编辑",
+    contentFormat = "编辑角色【%s】",
+    contentFormatArguments = @Resolve("response.name"),
+    targetId = @Resolve("response.name"),
+    targetName = @Resolve("response.name"),
+    targetType = @Resolve("'角色'"))
   @PutMapping("{roleName}")
   @PreAuthorize("hasAnyAuthority('role:crud')")
   public Role updateRole(@NotSuperAdminRole @PathVariable String roleName,
@@ -89,17 +89,17 @@ public class RoleController {
   public List<Role> getRoles() {
 
     return roleService.getRoles()
-            .stream()
-            .sorted((a, b) -> {
-              if (a.getName().equals("超级管理员")) {
-                return -1;
-              } else if (b.getName().equals("超级管理员")) {
-                return 1;
-              } else {
-                return a.getName().compareTo(b.getName());
-              }
-            })
-            .toList();
+      .stream()
+      .sorted((a, b) -> {
+        if (a.getName().equals("超级管理员")) {
+          return -1;
+        } else if (b.getName().equals("超级管理员")) {
+          return 1;
+        } else {
+          return a.getName().compareTo(b.getName());
+        }
+      })
+      .toList();
   }
 
   @GetMapping("{roleName}")
@@ -110,13 +110,13 @@ public class RoleController {
   }
 
   @BizLogger(
-          module = "角色管理",
-          type = "删除",
-          contentFormat = "删除角色【%s】",
-          contentFormatArguments = @Resolve("request.path.roleName"),
-          targetId = @Resolve("request.path.roleName"),
-          targetName = @Resolve("request.path.roleName"),
-          targetType = @Resolve("'角色'"))
+    module = "角色管理",
+    type = "删除",
+    contentFormat = "删除角色【%s】",
+    contentFormatArguments = @Resolve("request.path.roleName"),
+    targetId = @Resolve("request.path.roleName"),
+    targetName = @Resolve("request.path.roleName"),
+    targetType = @Resolve("'角色'"))
   @DeleteMapping("{roleName}")
   @PreAuthorize("hasAnyAuthority('role:crud')")
   public void deleteRole(@NotSuperAdminRole @PathVariable String roleName) {
@@ -125,19 +125,19 @@ public class RoleController {
   }
 
   @BizLogger(
-          module = "角色管理",
-          type = "编辑",
-          contentFormat = "编辑角色【%s】",
-          contentFormatArguments = @Resolve("request.body.newRoleName"),
-          targetId = @Resolve("request.body.newRoleName"),
-          targetName = @Resolve("request.body.newRoleName"),
-          targetType = @Resolve("'角色'"))
+    module = "角色管理",
+    type = "编辑",
+    contentFormat = "编辑角色【%s】",
+    contentFormatArguments = @Resolve("request.body.newRoleName"),
+    targetId = @Resolve("request.body.newRoleName"),
+    targetName = @Resolve("request.body.newRoleName"),
+    targetType = @Resolve("'角色'"))
   @PostMapping("{roleName}:rename")
   @PreAuthorize("hasAnyAuthority('role:crud')")
   public Role renameRole(@NotSuperAdminRole @PathVariable String roleName,
                          @RequestBody RenameRoleRequest renameRoleRequest) {
 
     return roleName.equals(renameRoleRequest.getNewRoleName()) ? roleService.getRole(roleName)
-            : roleService.renameRole(roleName, renameRoleRequest.getNewRoleName());
+      : roleService.renameRole(roleName, renameRoleRequest.getNewRoleName());
   }
 }
