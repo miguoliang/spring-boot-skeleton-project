@@ -3,18 +3,28 @@ package com.muchencute.test.environment;
 import com.muchencute.test.environment.listener.MyTestExecutionListener;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.TestExecutionListeners.MergeMode;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.sql.DataSource;
+
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 
 /**
  * API 测试基类。 该类对于 Keycloak 和 Minio 系统的相关 Bean 进行了 Mock 处理。
@@ -32,7 +42,9 @@ import javax.sql.DataSource;
 @Rollback(false)
 abstract class TestEnvironment {
 
-  @Autowired
+  @RegisterExtension
+  final RestDocumentationExtension restDocumentation = new RestDocumentationExtension();
+
   protected MockMvc mockMvc;
 
   @Autowired
@@ -46,4 +58,16 @@ abstract class TestEnvironment {
   @Autowired
   @Qualifier("bizDataSource")
   protected DataSource bizDataSource;
+
+  @BeforeEach
+  void setUp(WebApplicationContext webApplicationContext,
+             RestDocumentationContextProvider restDocumentationContextProvider) {
+
+    this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+      .apply(documentationConfiguration(restDocumentationContextProvider))
+      .alwaysDo(document("{method-name}",
+        preprocessRequest(prettyPrint()),
+        preprocessResponse(prettyPrint())))
+      .build();
+  }
 }
