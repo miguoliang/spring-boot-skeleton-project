@@ -27,9 +27,7 @@
     <module>test-environment</module>
   </modules>
   <properties>
-    <spring-cloud.version>2022.0.1</spring-cloud.version>
-    <liquibase-hibernate6.version>4.18.0</liquibase-hibernate6.version>
-    <javassist.version>3.24.0-GA</javassist.version>
+    <spring-cloud.version>2022.0.2</spring-cloud.version>
     <maven.build.timestamp.format>yyyMMddHHmmss</maven.build.timestamp.format>
   </properties>
 
@@ -90,6 +88,10 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -106,50 +108,6 @@
               </exclude>
             </excludes>
           </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.liquibase</groupId>
-          <artifactId>liquibase-maven-plugin</artifactId>
-          <version>${liquibase-hibernate6.version}</version>
-          <configuration>
-            <changeLogFile>db/changelog/changelog-master.xml</changeLogFile>
-            <outputChangeLogFile>src/main/resources/db/changelog/changelog-1.0.0.xml
-            </outputChangeLogFile>
-            <diffChangeLogFile>
-              src/main/resources/db/changelog/changelog-${maven.build.timestamp}.xml
-            </diffChangeLogFile>
-            <url>jdbc:postgresql://localhost:5432/biz</url>
-            <username>root</username>
-            <password>example</password>
-            <referenceUrl>hibernate:ejb3:liquibase</referenceUrl>
-          </configuration>
-          <dependencies>
-            <dependency>
-              <groupId>org.liquibase</groupId>
-              <artifactId>liquibase-core</artifactId>
-              <version>${liquibase-hibernate6.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.liquibase.ext</groupId>
-              <artifactId>liquibase-hibernate6</artifactId>
-              <version>${liquibase-hibernate6.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.springframework.boot</groupId>
-              <artifactId>spring-boot-starter-data-jpa</artifactId>
-              <version>3.0.0</version>
-            </dependency>
-            <dependency>
-              <groupId>jakarta.validation</groupId>
-              <artifactId>jakarta.validation-api</artifactId>
-              <version>${jakarta-validation.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.springframework.boot</groupId>
-              <artifactId>spring-boot-starter-validation</artifactId>
-              <version>3.0.2</version>
-            </dependency>
-          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>

@@ -56,13 +56,4 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.liquibase</groupId>
-        <artifactId>liquibase-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-
 </project>

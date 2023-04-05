@@ -89,6 +89,6 @@ services:
 
 volumes:
   biz-minio-data:
-    external: true
+    external: false
   biz-postgres-data:
-    external: true
+    external: false
