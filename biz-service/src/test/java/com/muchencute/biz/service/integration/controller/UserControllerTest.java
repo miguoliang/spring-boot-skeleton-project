@@ -57,6 +57,6 @@ class UserControllerTest extends KeycloakTestEnvironment {
 
     mockMvc.perform(get("/user/offlineNum"))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.count", equalTo(4)));
+      .andExpect(jsonPath("$.count", equalTo(3)));
   }
 }

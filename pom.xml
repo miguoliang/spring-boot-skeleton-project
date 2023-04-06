@@ -29,6 +29,7 @@
   <properties>
     <spring-cloud.version>2022.0.2</spring-cloud.version>
     <maven.build.timestamp.format>yyyMMddHHmmss</maven.build.timestamp.format>
+    <spring-rest-docs.version>3.0.0</spring-rest-docs.version>
   </properties>
 
   <profiles>

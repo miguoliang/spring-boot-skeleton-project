@@ -117,10 +117,11 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
+      <!-- Use spring rest docs to generate asciidoc -->
       <plugin>
         <groupId>org.asciidoctor</groupId>
         <artifactId>asciidoctor-maven-plugin</artifactId>
-        <version>2.2.2</version>
+        <version>2.2.3</version>
         <executions>
           <execution>
             <id>generate-docs</id>
@@ -138,11 +139,13 @@
           <dependency>
             <groupId>org.springframework.restdocs</groupId>
             <artifactId>spring-restdocs-asciidoctor</artifactId>
-            <version>${spring-restdocs.version}</version>
+            <version>${spring-rest-docs.version}</version>
           </dependency>
         </dependencies>
       </plugin>
+      <!-- Generate static html content by asciidoc -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
         <executions>
           <execution>
@@ -152,10 +155,14 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.outputDirectory}/static/docs</outputDirectory>
+              <outputDirectory>
+                ${project.build.outputDirectory}/static/docs
+              </outputDirectory>
               <resources>
                 <resource>
-                  <directory>${project.build.directory}/generated-docs</directory>
+                  <directory>
+                    ${project.build.directory}/generated-docs
+                  </directory>
                 </resource>
               </resources>
             </configuration>

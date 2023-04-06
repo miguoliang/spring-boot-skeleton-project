@@ -1,0 +1,1 @@
+include::{snippets}/group/delete/curl-request.adoc[]
