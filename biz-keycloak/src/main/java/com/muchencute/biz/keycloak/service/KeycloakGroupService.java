@@ -57,10 +57,9 @@ public class KeycloakGroupService {
 
   public Group newGroup(Group group) {
 
-    final var groupResource = keycloakService.newGroupResource(group.getName(),
+    final var groupId = keycloakService.newGroupResource(group.getName(),
       group.getParentId());
-    final var groupRepresentation = groupResource.toRepresentation();
-    return getGroup(groupRepresentation.getId());
+    return getGroup(groupId);
   }
 
   public Group renameGroup(String id, String newName) {

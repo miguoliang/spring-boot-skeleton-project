@@ -170,7 +170,7 @@ public class KeycloakService {
     return getGroupsResource().group(id);
   }
 
-  public GroupResource newGroupResource(String name, String parentId) {
+  public String newGroupResource(String name, String parentId) {
 
     final var groupRepresentation = new GroupRepresentation();
     groupRepresentation.setName(name);
@@ -178,13 +178,11 @@ public class KeycloakService {
     if (StrUtil.isNotBlank(parentId)) {
       final var groupResource = getGroupsResource().group(parentId);
       @Cleanup final var response = groupResource.subGroup(groupRepresentation);
-      final var groupId = CreatedResponseUtil.getCreatedId(response);
-      return getGroupResource(groupId);
+      return CreatedResponseUtil.getCreatedId(response);
     }
 
     final var response = getGroupsResource().add(groupRepresentation);
-    final var groupId = CreatedResponseUtil.getCreatedId(response);
-    return getGroupsResource().group(groupId);
+    return CreatedResponseUtil.getCreatedId(response);
   }
 
   public RoleResource newRoleResource(String roleName) {

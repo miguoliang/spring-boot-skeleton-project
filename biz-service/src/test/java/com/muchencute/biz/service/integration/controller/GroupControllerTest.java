@@ -59,7 +59,7 @@ class GroupControllerTest extends KeycloakTestEnvironment {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.length()", equalTo(3)))
       .andExpect(jsonPath("$.[?(@.name=='group_3')].parentId", hasSize(1)))
-      .andExpect(jsonPath("$.[?(@.name=='group_3')].parentId", contains(" ")));
+      .andExpect(jsonPath("$.[?(@.name=='group_3')].parentId", contains(nullValue())));
   }
 
   @Test
@@ -87,7 +87,7 @@ class GroupControllerTest extends KeycloakTestEnvironment {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.length()", equalTo(4)))
       .andExpect(jsonPath("$.[?(@.name=='group_a')].parentId", hasSize(1)))
-      .andExpect(jsonPath("$.[?(@.name=='group_a')].parentId", contains(" ")))
+      .andExpect(jsonPath("$.[?(@.name=='group_a')].parentId", contains(nullValue())))
       .andExpect(jsonPath("$.[?(@.name=='group_1')].parentId", hasSize(1)))
       .andExpect(jsonPath("$.[?(@.name=='group_1')].parentId", contains(targetGroup.getId())));
   }
@@ -168,7 +168,7 @@ class GroupControllerTest extends KeycloakTestEnvironment {
   @Test
   @SneakyThrows
   @MockGroup(name = "group_1")
-  void renameGroup() {
+  void rename_a_group() {
 
     final var renameGroup = new RenameGroupRequest();
     renameGroup.setNewGroupName("group_2");
@@ -178,10 +178,7 @@ class GroupControllerTest extends KeycloakTestEnvironment {
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(renameGroup)))
       .andExpect(status().isOk())
-      .andDo(document("group/rename"))
-      .andReturn()
-      .getResponse()
-      .getContentAsString(StandardCharsets.UTF_8);
+      .andDo(document("group/rename"));
 
     mockMvc.perform(get("/group/" + groupId))
       .andExpect(status().isOk())
@@ -189,14 +186,45 @@ class GroupControllerTest extends KeycloakTestEnvironment {
   }
 
   @Test
-  void getGroup() {
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  void retrieve_a_group() {
+
+    final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
+    mockMvc.perform(get("/group/" + groupId))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.name", equalTo("group_1")))
+      .andExpect(jsonPath("$.parentId", nullValue()))
+      .andDo(document("group/get"));
   }
 
   @Test
-  void getGroups() {
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  @MockGroup(name = "group_2", parent = "group_1")
+  void retrieve_all_groups() {
+
+    final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
+    mockMvc.perform(get("/group"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.[0].name", equalTo("group_1")))
+      .andExpect(jsonPath("$.[0].parentId").doesNotExist())
+      .andExpect(jsonPath("$.[1].name", equalTo("group_2")))
+      .andExpect(jsonPath("$.[1].parentId", equalTo(groupId)))
+      .andDo(document("group/get/pagination"));
   }
 
   @Test
-  void deleteGroup() {
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  void delete_a_group() {
+
+    final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
+    mockMvc.perform(delete("/group/" + groupId))
+      .andExpect(status().isOk())
+      .andDo(document("group/delete"));
+
+    mockMvc.perform(get("/group/" + groupId))
+      .andExpect(status().isNotFound());
   }
 }

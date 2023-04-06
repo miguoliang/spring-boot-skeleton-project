@@ -16,4 +16,10 @@ public class Group {
   private String name;
 
   private String parentId;
+
+  // 数据库中直接读取的根节点的 parentId 是空格，
+  // 所以在输出的时候转换成 null，使全局语义统一。
+  public String getParentId() {
+    return " ".equals(parentId) ? null : parentId;
+  }
 }
