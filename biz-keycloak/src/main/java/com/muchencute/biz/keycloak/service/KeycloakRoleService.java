@@ -53,7 +53,7 @@ public class KeycloakRoleService {
     final var oldRoleRepresentation = keycloakService.getClientRoleResource(oldRoleName)
             .toRepresentation();
     keycloakService.getClientRoleResource(oldRoleName)
-            .getRoleUserMembers()
+      .getUserMembers()
             .forEach(it -> {
               final var username = it.getUsername();
               keycloakService.attachRoleResource(username, newRoleRepresentation);

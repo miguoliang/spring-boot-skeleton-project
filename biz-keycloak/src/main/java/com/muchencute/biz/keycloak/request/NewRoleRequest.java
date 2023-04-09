@@ -2,16 +2,18 @@ package com.muchencute.biz.keycloak.request;
 
 import java.util.List;
 
-import com.muchencute.biz.keycloak.validator.NotSuperAdminRole;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NewRoleRequest {
 
-  @NotSuperAdminRole
   private String name;
 
-  private List<String> scopes;
+  private List<String> scopes = List.of();
 }

@@ -19,7 +19,7 @@
     <javafaker-version>1.0.2</javafaker-version>
     <javax.el-api.version>3.0.1-b06</javax.el-api.version>
     <javax.el.version>2.2.6</javax.el.version>
-    <junit.suite.version>1.8.2</junit.suite.version>
+    <junit-suite.version>1.8.2</junit-suite.version>
   </properties>
 
   <dependencyManagement>

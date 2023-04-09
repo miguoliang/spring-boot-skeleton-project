@@ -5,9 +5,7 @@ import com.muchencute.biz.keycloak.model.UserEntity;
 import com.muchencute.biz.keycloak.repository.UserEntityRepository;
 import com.muchencute.biz.keycloak.service.KeycloakService;
 import io.minio.MinioClient;
-import lombok.Cleanup;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -50,25 +48,5 @@ public class UnitTestEnvironment extends TestEnvironment {
     Mockito.when(keycloakService.getRealm()).thenReturn("master");
     Mockito.when(userEntityRepository.findByUsernameAndRealmId("admin", keycloakService.getRealm()))
       .thenReturn(Optional.of(userEntity));
-  }
-
-  // 此处不能用 BeforeEach，否则会清空 CustomTestExecutionListener 创建的数据
-  @AfterEach
-  @SneakyThrows
-  void afterEach() {
-
-    bizEntityManager.clear();
-    @Cleanup final var conn = bizDataSource.getConnection();
-    // 禁用约束
-    conn.createStatement().execute("SET REFERENTIAL_INTEGRITY = FALSE");
-    // 罗列表对象
-    final var tables = conn.createStatement().executeQuery("show tables");
-    // 删除表数据
-    while (tables.next()) {
-      final var tableName = String.format("%s.%s", tables.getString(2), tables.getString(1));
-      conn.createStatement().execute("truncate table " + tableName);
-    }
-    // 启用约束
-    conn.createStatement().execute("SET REFERENTIAL_INTEGRITY = TRUE");
   }
 }

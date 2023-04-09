@@ -78,6 +78,13 @@ public class KeycloakService {
     return cr.getId();
   }
 
+  public String getIdOfRealm() {
+
+    final var realmResource = keycloak.realm(realm);
+    final var rr = realmResource.toRepresentation();
+    return rr.getId();
+  }
+
   public RoleResource getClientRoleResource(String roleName) {
 
     final var clientResource = getClientResource();

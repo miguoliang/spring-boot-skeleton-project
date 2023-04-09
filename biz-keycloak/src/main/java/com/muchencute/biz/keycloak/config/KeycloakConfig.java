@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Set;
+
 @Configuration
 @ConfigurationProperties(prefix = "keycloak")
 @Setter
@@ -15,20 +17,24 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class KeycloakConfig {
 
-  private AdminCredential admin;
+  protected AdminCredential admin;
 
-  private String authServerUrl;
+  protected String authServerUrl;
 
-  private String realm;
+  protected String realm;
 
-  private String clientId;
+  protected String clientId;
+
+  protected Set<String> protectedUsernames = Set.of();
+
+  protected Set<String> protectedRoleNames = Set.of();
 
   @Bean
   public Keycloak keycloakAdminClient() {
 
     // Admin 只能在 master 的 admin-cli 上操作
     return Keycloak.getInstance(authServerUrl, "master", admin.username, admin.password,
-        "admin-cli");
+      "admin-cli");
   }
 
   @Getter

@@ -1,6 +1,5 @@
 package com.muchencute.biz.keycloak.request;
 
-import com.muchencute.biz.keycloak.validator.NotSuperAdminRoleId;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,7 +13,6 @@ public class UpdateUserRequest {
 
   private String phoneNumber;
 
-  @NotSuperAdminRoleId
   private String roleId;
 
   private String picture;
