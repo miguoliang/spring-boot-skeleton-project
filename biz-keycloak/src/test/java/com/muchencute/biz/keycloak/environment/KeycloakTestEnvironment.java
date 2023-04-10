@@ -96,6 +96,11 @@ public abstract class KeycloakTestEnvironment {
     .withLogConsumer(new Slf4jLogConsumer(log))
     .dependsOn(postgres)
     .withReuse(true);
+  @RegisterExtension
+  final RestDocumentationExtension restDocumentation = new RestDocumentationExtension();
+  protected MockMvc mockMvc;
+  @Autowired
+  protected KeycloakService keycloakService;
 
   @DynamicPropertySource
   @SneakyThrows
@@ -124,14 +129,6 @@ public abstract class KeycloakTestEnvironment {
       () -> "org.hibernate.dialect.PostgreSQLDialect");
   }
 
-  @RegisterExtension
-  final RestDocumentationExtension restDocumentation = new RestDocumentationExtension();
-
-  protected MockMvc mockMvc;
-
-  @Autowired
-  protected KeycloakService keycloakService;
-
   @BeforeEach
   void beforeEach(WebApplicationContext webApplicationContext,
                   RestDocumentationContextProvider restDocumentationContextProvider) {
@@ -154,6 +151,9 @@ public abstract class KeycloakTestEnvironment {
 
     keycloakService.getGroupsResource().groups().forEach(it ->
       keycloakService.getGroupResource(it.getId()).remove());
+
+    keycloakService.getRealmResource().clientScopes().findAll().forEach(it ->
+      keycloakService.getClientScopeResource(it.getName()).remove());
 
     keycloakService.getRealmResource().logoutAll();
   }

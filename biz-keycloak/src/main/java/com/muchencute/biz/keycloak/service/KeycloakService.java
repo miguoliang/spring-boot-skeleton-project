@@ -1,10 +1,11 @@
 package com.muchencute.biz.keycloak.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.muchencute.biz.keycloak.exception.ConflictException;
 import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
 import com.muchencute.biz.keycloak.repository.UserEntityRepository;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.NotFoundException;
 import lombok.Cleanup;
 import lombok.Getter;
 import org.keycloak.admin.client.CreatedResponseUtil;
@@ -109,7 +110,7 @@ public class KeycloakService {
       .search(username)
       .stream()
       .findFirst()
-      .orElseThrow(() -> new EntityNotFoundException("用户不存在！"));
+      .orElseThrow(() -> new NotFoundException("用户不存在！"));
     return usersResource.get(ur.getId());
   }
 
@@ -142,7 +143,7 @@ public class KeycloakService {
 
     final var response = getUsersResource().create(userRepresentation);
     if (response.getStatus() == 409) {
-      throw new EntityExistsException("该用户已存在！");
+      throw new ConflictException();
     }
     final var userId = CreatedResponseUtil.getCreatedId(response);
     return getUsersResource().get(userId);
@@ -197,18 +198,26 @@ public class KeycloakService {
     final var roleRepresentation = new RoleRepresentation();
     roleRepresentation.setName(roleName);
     roleRepresentation.setClientRole(true);
-    getClientResource().roles().create(roleRepresentation);
+    try {
+      getClientResource().roles().create(roleRepresentation);
+    } catch (ClientErrorException e) {
+      if (e.getResponse().getStatus() == 409) {
+        throw new ConflictException();
+      } else {
+        throw e;
+      }
+    }
     return getClientResource().roles().get(roleName);
   }
 
   public void joinGroup(String userId, String groupId) {
 
     userEntityRepository.findById(userId)
-      .orElseThrow(() -> new EntityNotFoundException("用户不存在！"));
+      .orElseThrow(() -> new NotFoundException("用户不存在！"));
     final var userResource = getUserResourceById(userId);
     if (groupId != null) {
       keycloakGroupRepository.findById(groupId)
-        .orElseThrow(() -> new EntityNotFoundException("部门不存在！"));
+        .orElseThrow(() -> new NotFoundException("部门不存在！"));
       userResource.joinGroup(groupId);
     } else {
       userResource.groups().forEach(it -> userResource.leaveGroup(it.getId()));

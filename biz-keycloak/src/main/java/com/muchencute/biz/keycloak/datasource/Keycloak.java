@@ -62,7 +62,6 @@ public class Keycloak {
     return hibernateJpaVendorAdapter;
   }
 
-
   @Bean
   public JpaTransactionManager keycloakTransactionManager() {
 

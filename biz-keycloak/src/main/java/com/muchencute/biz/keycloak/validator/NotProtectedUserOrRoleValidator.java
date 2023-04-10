@@ -8,7 +8,6 @@ import com.muchencute.biz.keycloak.repository.UserEntityRepository;
 import com.muchencute.biz.keycloak.service.KeycloakService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import org.hibernate.annotations.Immutable;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
@@ -19,19 +18,13 @@ import java.util.stream.Collectors;
 public class NotProtectedUserOrRoleValidator implements
   ConstraintValidator<NotProtectedUserOrRole, Object> {
 
-  @Immutable
-  private static Set<String> PROTECTED_USERNAMES = Set.of();
+  private final Set<String> PROTECTED_USERNAMES;
 
-  @Immutable
-  private static Set<String> PROTECTED_USER_IDS = Set.of();
+  private final Set<String> PROTECTED_USER_IDS;
 
-  @Immutable
-  private static Set<String> PROTECTED_ROLE_NAMES = Set.of();
+  private final Set<String> PROTECTED_ROLE_NAMES;
 
-  @Immutable
-  private static Set<String> PROTECTED_ROLE_IDS = Set.of();
-
-  private static boolean initialized = false;
+  private final Set<String> PROTECTED_ROLE_IDS;
 
   private NotProtectedUserOrRole.FieldType fieldType;
 
@@ -43,10 +36,6 @@ public class NotProtectedUserOrRoleValidator implements
     KeycloakService keycloakService,
     UserEntityRepository userEntityRepository,
     KeycloakRoleRepository keycloakRoleRepository) {
-
-    if (initialized) {
-      return;
-    }
 
     final var idOfRealm = keycloakService.getIdOfRealm();
     final var idOfClient = keycloakService.getIdOfClient();
@@ -64,8 +53,6 @@ public class NotProtectedUserOrRoleValidator implements
     PROTECTED_USER_IDS = protectedUsers.stream().map(UserEntity::getId).collect(Collectors.toSet());
     PROTECTED_ROLE_NAMES = protectedRoles.stream().map(KeycloakRole::getName).collect(Collectors.toSet());
     PROTECTED_ROLE_IDS = protectedRoles.stream().map(KeycloakRole::getId).collect(Collectors.toSet());
-
-    initialized = true;
   }
 
   @Override

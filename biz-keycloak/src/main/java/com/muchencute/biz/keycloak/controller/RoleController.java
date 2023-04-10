@@ -4,7 +4,6 @@ package com.muchencute.biz.keycloak.controller;
 import com.muchencute.biz.keycloak.model.Role;
 import com.muchencute.biz.keycloak.repository.KeycloakRoleRepository;
 import com.muchencute.biz.keycloak.request.NewRoleRequest;
-import com.muchencute.biz.keycloak.request.RenameRoleRequest;
 import com.muchencute.biz.keycloak.service.KeycloakRoleService;
 import com.muchencute.biz.keycloak.service.KeycloakService;
 import com.muchencute.biz.keycloak.validator.NotProtectedUserOrRole;
@@ -67,15 +66,7 @@ public class RoleController {
   @PreAuthorize("isAuthenticated()")
   public List<Role> getRoles() {
 
-    return roleService.getRoles().stream().sorted((a, b) -> {
-      if (a.getName().equals("超级管理员")) {
-        return -1;
-      } else if (b.getName().equals("超级管理员")) {
-        return 1;
-      } else {
-        return a.getName().compareTo(b.getName());
-      }
-    }).toList();
+    return roleService.getRoles();
   }
 
   @GetMapping("{roleName}")
@@ -93,12 +84,11 @@ public class RoleController {
     keycloakService.getClientRoleResource(roleName).remove();
   }
 
-  @PostMapping("{roleName}:rename")
+  @PostMapping(path = "{roleName}:rename", consumes = "text/plain")
   @PreAuthorize("hasAnyAuthority('role:crud')")
-  public Role renameRole(@PathVariable String roleName,
-                         @RequestBody RenameRoleRequest renameRoleRequest) {
+  public Role renameRole(@PathVariable String roleName, @RequestBody String newRoleName) {
 
-    return roleName.equals(renameRoleRequest.getNewRoleName()) ? roleService.getRole(roleName)
-      : roleService.renameRole(roleName, renameRoleRequest.getNewRoleName());
+    return roleName.equals(newRoleName) ? roleService.getRole(roleName)
+      : roleService.renameRole(roleName, newRoleName);
   }
 }

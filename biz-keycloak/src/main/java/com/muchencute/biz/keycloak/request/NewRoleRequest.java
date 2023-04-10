@@ -1,11 +1,11 @@
 package com.muchencute.biz.keycloak.request;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Set;
 
 @Data
 @Builder
@@ -15,5 +15,5 @@ public class NewRoleRequest {
 
   private String name;
 
-  private List<String> scopes = List.of();
+  private Set<String> scopes = Set.of();
 }
