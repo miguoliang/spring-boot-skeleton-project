@@ -6,8 +6,6 @@ import com.muchencute.biz.keycloak.environment.KeycloakTestEnvironment;
 import com.muchencute.biz.keycloak.environment.mock.MockGroup;
 import com.muchencute.biz.keycloak.model.Group;
 import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
-import com.muchencute.biz.keycloak.request.MoveGroupRequest;
-import com.muchencute.biz.keycloak.request.RenameGroupRequest;
 import com.muchencute.biz.keycloak.service.KeycloakGroupService;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -29,26 +27,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = GroupController.class)
 class GroupControllerTest extends KeycloakTestEnvironment {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  final ObjectMapper objectMapper = new ObjectMapper();
+
   @Autowired
-  private KeycloakGroupService keycloakGroupService;
+  KeycloakGroupService keycloakGroupService;
+
   @Autowired
-  private KeycloakGroupRepository keycloakGroupRepository;
+  KeycloakGroupRepository keycloakGroupRepository;
 
   @Test
   @SneakyThrows
-  @MockGroup(name = "group_1", parent = " ")
+  @MockGroup(name = "group_1")
   @MockGroup(name = "group_2", parent = "group_1")
   @MockGroup(name = "group_3", parent = "group_2")
-  void move_a_group_to_root() {
+  void group_move_to_root() {
 
     final var groupToMove = keycloakGroupRepository.findByName("group_3")
       .stream().findFirst().orElseThrow().getId();
-    mockMvc.perform(post("/group/" + groupToMove + ":move")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("{}"))
+    mockMvc.perform(post("/group/{groupId}:move", groupToMove)
+        .contentType(MediaType.TEXT_PLAIN))
       .andExpect(status().isOk())
-      .andDo(document("group/move/move_a_group_to_root"));
+      .andDo(document("group/move/to-root"));
 
     Assertions.assertEquals(2, keycloakGroupService.getGroups()
       .stream().filter(it -> StrUtil.isBlank(it.getParentId())).count());
@@ -62,21 +61,20 @@ class GroupControllerTest extends KeycloakTestEnvironment {
 
   @Test
   @SneakyThrows
-  @MockGroup(name = "group_1", parent = " ")
+  @MockGroup(name = "group_1")
   @MockGroup(name = "group_2", parent = "group_1")
-  @MockGroup(name = "group_a", parent = " ")
+  @MockGroup(name = "group_a")
   @MockGroup(name = "group_b", parent = "group_a")
-  void move_a_group_to_another_group() {
+  void group_move_into_another() {
 
     final var groupToMove = keycloakGroupRepository.findByName("group_1").orElseThrow();
     final var targetGroup = keycloakGroupRepository.findByName("group_b").orElseThrow();
-    final var moveRequest = new MoveGroupRequest();
-    moveRequest.setParentId(targetGroup.getId());
-    mockMvc.perform(post("/group/" + groupToMove.getId() + ":move")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(moveRequest)))
+
+    mockMvc.perform(post("/group/{groupId}:move", groupToMove.getId())
+        .contentType(MediaType.TEXT_PLAIN)
+        .content(targetGroup.getId()))
       .andExpect(status().isOk())
-      .andDo(document("group/move/move_a_group_to_another_group"));
+      .andDo(document("group/move/into-another"));
 
     Assertions.assertEquals(1, keycloakGroupService.getGroups()
       .stream().filter(it -> StrUtil.isBlank(it.getParentId())).count());
@@ -93,7 +91,88 @@ class GroupControllerTest extends KeycloakTestEnvironment {
   @Test
   @SneakyThrows
   @MockGroup(name = "group_1")
-  void group_exists() {
+  void group_move_target_not_exists() {
+
+    final var groupToMove = keycloakGroupRepository.findByName("group_1").orElseThrow();
+
+    mockMvc.perform(post("/group/{groupId}:move", groupToMove.getId())
+        .contentType(MediaType.TEXT_PLAIN)
+        .content("not-exists"))
+      .andExpect(status().isNotFound())
+      .andDo(document("group/move/target-not-exists"));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  @MockGroup(name = "group_2", parent = "group_1")
+  @MockGroup(name = "group_2")
+  void group_move_to_another_with_same_name_should_fail() {
+
+    final var groupToMove = keycloakGroupRepository.findByName("group_1").orElseThrow();
+    final var targetGroup = keycloakGroupRepository.findByNameAndParentGroup("group_2", " ").orElseThrow();
+
+    mockMvc.perform(post("/group/{groupId}:move", targetGroup.getId())
+        .contentType(MediaType.TEXT_PLAIN)
+        .content(groupToMove.getId()))
+      .andExpect(status().isConflict())
+      .andDo(document("group/move/to-another-with-same-name-should-fail"));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  @MockGroup(name = "group_2", parent = "group_1")
+  @MockGroup(name = "group_2")
+  void group_move_to_root_with_same_name_should_fail() {
+
+    final var group1Id = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
+    final var sourceGroupId = keycloakGroupRepository
+      .findByNameAndParentGroup("group_2", group1Id).orElseThrow().getId();
+
+    mockMvc.perform(post("/group/{groupId}:move", sourceGroupId)
+        .contentType(MediaType.TEXT_PLAIN))
+      .andExpect(status().isConflict())
+      .andDo(document("group/move/to-root-with-same-name-should-fail"));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  @MockGroup(name = "group_2", parent = "group_1")
+  @MockGroup(name = "group_3", parent = "group_2")
+  void group_move_to_itself_should_fail() {
+
+    final var groupToMove = keycloakGroupRepository.findByName("group_1").orElseThrow();
+
+    mockMvc.perform(post("/group/{groupId}:move", groupToMove.getId())
+        .contentType(MediaType.TEXT_PLAIN)
+        .content(groupToMove.getId()))
+      .andExpect(status().isBadRequest())
+      .andDo(document("group/move/to-itself-should-fail"));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  @MockGroup(name = "group_2", parent = "group_1")
+  @MockGroup(name = "group_3", parent = "group_2")
+  void group_move_to_posterity_should_fail() {
+
+    final var groupToMove = keycloakGroupRepository.findByName("group_1").orElseThrow();
+    final var group2Id = keycloakGroupRepository.findByName("group_2").orElseThrow().getId();
+
+    mockMvc.perform(post("/group/{groupId}:move", groupToMove.getId())
+        .contentType(MediaType.TEXT_PLAIN)
+        .content(group2Id))
+      .andExpect(status().isBadRequest())
+      .andDo(document("group/move/to-posterity-should-fail"));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  void group_stat_exists() {
 
     mockMvc.perform(head("/group")
         .param("name", "group_1"))
@@ -103,16 +182,16 @@ class GroupControllerTest extends KeycloakTestEnvironment {
 
   @Test
   @SneakyThrows
-  void group_not_exists() {
+  void group_stat_not_exists() {
     mockMvc.perform(head("/group")
         .param("name", "group_1"))
       .andExpect(status().isNotFound())
-      .andDo(document("group/stat/not_exists"));
+      .andDo(document("group/stat/not-exists"));
   }
 
   @Test
   @SneakyThrows
-  void new_root_group() {
+  void group_new_root() {
 
     final var newGroup = new Group();
     newGroup.setName("group_1");
@@ -120,8 +199,8 @@ class GroupControllerTest extends KeycloakTestEnvironment {
     final var responseText = mockMvc.perform(post("/group")
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(newGroup)))
-      .andExpect(status().isCreated())
-      .andDo(document("group/new/new_root_group"))
+      .andExpect(status().isOk())
+      .andDo(document("group/new/root"))
       .andReturn()
       .getResponse()
       .getContentAsString(StandardCharsets.UTF_8);
@@ -138,7 +217,22 @@ class GroupControllerTest extends KeycloakTestEnvironment {
   @Test
   @SneakyThrows
   @MockGroup(name = "group_root")
-  void new_child_group() {
+  void group_new_root_exists() {
+
+    final var newGroup = new Group();
+    newGroup.setName("group_root");
+
+    mockMvc.perform(post("/group")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(newGroup)))
+      .andExpect(status().isConflict())
+      .andDo(document("group/new/root-exists"));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_root")
+  void group_new_child_ok() {
 
     final var newGroup = new Group();
     newGroup.setName("group_child");
@@ -148,8 +242,8 @@ class GroupControllerTest extends KeycloakTestEnvironment {
     final var responseText = mockMvc.perform(post("/group")
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(newGroup)))
-      .andExpect(status().isCreated())
-      .andDo(document("group/new/new_child_group"))
+      .andExpect(status().isOk())
+      .andDo(document("group/new/child-ok"))
       .andReturn()
       .getResponse()
       .getContentAsString(StandardCharsets.UTF_8);
@@ -166,41 +260,80 @@ class GroupControllerTest extends KeycloakTestEnvironment {
   @Test
   @SneakyThrows
   @MockGroup(name = "group_1")
-  void rename_a_group() {
+  @MockGroup(name = "group_2", parent = "group_1")
+  void group_new_child_exists() {
 
-    final var renameGroup = new RenameGroupRequest();
-    renameGroup.setNewGroupName("group_2");
+    final var newGroup = new Group();
+    newGroup.setName("group_2");
+    final var rootGroupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
+    newGroup.setParentId(rootGroupId);
+
+    mockMvc.perform(post("/group")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(newGroup)))
+      .andExpect(status().isConflict())
+      .andDo(document("group/new/child-exists"));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  void group_rename_ok() {
 
     final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
-    mockMvc.perform(post("/group/" + groupId + ":rename")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(renameGroup)))
+    mockMvc.perform(post("/group/{groupId}:rename", groupId)
+        .contentType(MediaType.TEXT_PLAIN)
+        .content("group_2"))
       .andExpect(status().isOk())
-      .andDo(document("group/rename"));
+      .andDo(document("group/rename/ok"));
 
     mockMvc.perform(get("/group/" + groupId))
       .andExpect(status().isOk())
+      .andExpect(jsonPath("$.id", equalTo(groupId)))
       .andExpect(jsonPath("$.name", equalTo("group_2")));
   }
 
   @Test
   @SneakyThrows
   @MockGroup(name = "group_1")
-  void retrieve_a_group() {
+  @MockGroup(name = "group_2")
+  void group_rename_exists() {
+
+    final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
+    mockMvc.perform(post("/group/{groupId}:rename", groupId)
+        .contentType(MediaType.TEXT_PLAIN)
+        .content("group_2"))
+      .andExpect(status().isConflict())
+      .andDo(document("group/rename/exists"));
+  }
+
+  @Test
+  @SneakyThrows
+  @MockGroup(name = "group_1")
+  void group_get_single_ok() {
 
     final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
     mockMvc.perform(get("/group/" + groupId))
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.name", equalTo("group_1")))
       .andExpect(jsonPath("$.parentId", nullValue()))
-      .andDo(document("group/get"));
+      .andDo(document("group/get/single-ok"));
+  }
+
+  @Test
+  @SneakyThrows
+  void group_get_single_not_exists() {
+
+    mockMvc.perform(get("/group/123"))
+      .andExpect(status().isNotFound())
+      .andDo(document("group/get/single-not-exists"));
   }
 
   @Test
   @SneakyThrows
   @MockGroup(name = "group_1")
   @MockGroup(name = "group_2", parent = "group_1")
-  void retrieve_all_groups() {
+  void group_get_list() {
 
     final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
     mockMvc.perform(get("/group"))
@@ -215,14 +348,19 @@ class GroupControllerTest extends KeycloakTestEnvironment {
   @Test
   @SneakyThrows
   @MockGroup(name = "group_1")
-  void delete_a_group() {
+  @MockGroup(name = "group_2", parent = "group_1")
+  void group_delete_recursively() {
 
-    final var groupId = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
-    mockMvc.perform(delete("/group/" + groupId))
+    final var group1Id = keycloakGroupRepository.findByName("group_1").orElseThrow().getId();
+    final var group2Id = keycloakGroupRepository.findByName("group_2").orElseThrow().getId();
+
+    mockMvc.perform(delete("/group/{groupId}", group1Id))
       .andExpect(status().isOk())
-      .andDo(document("group/delete"));
+      .andDo(document("group/delete/recursively"));
 
-    mockMvc.perform(get("/group/" + groupId))
+    mockMvc.perform(get("/group/{groupId}", group1Id))
+      .andExpect(status().isNotFound());
+    mockMvc.perform(get("/group/{groupId}", group2Id))
       .andExpect(status().isNotFound());
   }
 }

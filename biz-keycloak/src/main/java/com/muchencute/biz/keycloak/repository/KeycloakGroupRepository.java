@@ -15,4 +15,6 @@ public interface KeycloakGroupRepository extends JpaRepository<KeycloakGroup, St
   // 此方法只限单元测试使用，因为实际生产环境中可能存在多个分属不同层级的同名组
   Optional<KeycloakGroup> findByName(String name);
 
+  Optional<KeycloakGroup> findByNameAndParentGroup(String name, String parentGroup);
+
 }

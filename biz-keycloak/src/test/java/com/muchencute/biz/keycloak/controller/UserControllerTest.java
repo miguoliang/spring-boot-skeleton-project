@@ -4,10 +4,8 @@ import com.muchencute.biz.keycloak.environment.KeycloakTestEnvironment;
 import com.muchencute.biz.keycloak.environment.mock.MockUser;
 import com.muchencute.biz.keycloak.environment.service.KeycloakAccessTokenService;
 import com.muchencute.biz.keycloak.repository.UserEntityRepository;
-import com.muchencute.biz.keycloak.request.NewUserRequest;
 import com.muchencute.biz.keycloak.service.KeycloakRoleService;
 import com.muchencute.biz.keycloak.service.KeycloakUserService;
-import com.muchencute.biz.keycloak.validator.NotProtectedUserOrRoleValidator;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -48,23 +43,6 @@ class UserControllerTest extends KeycloakTestEnvironment {
 
   @Autowired
   UserEntityRepository userEntityRepository;
-
-
-  @SuppressWarnings("unchecked")
-  void initProtectedUsers() {
-
-    final var usernames = environment.getProperty("keycloak.protected-usernames", Set.class);
-    assert usernames != null;
-
-    usernames.forEach(it -> {
-      final var request = new NewUserRequest();
-      request.setUsername((String) it);
-      request.setPassword((String) it);
-      keycloakUserService.newUser(request);
-    });
-
-    ReflectionTestUtils.setField(NotProtectedUserOrRoleValidator.class, "initialized", false);
-  }
 
   @Test
   @SneakyThrows
@@ -105,11 +83,11 @@ class UserControllerTest extends KeycloakTestEnvironment {
   }
 
   @Test
+  @MockUser(username = "super_admin", password = "super_admin")
   @SneakyThrows
   @Transactional("keycloakTransactionManager")
   void can_not_delete_protected_user() {
 
-    initProtectedUsers();
     final var idOfRealm = keycloakService.getIdOfRealm();
     final var user = userEntityRepository.findByUsernameAndRealmId("super_admin", idOfRealm).orElseThrow();
     mockMvc.perform(delete("/user/{id}", user.getId()))

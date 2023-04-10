@@ -1,8 +1,8 @@
 package com.muchencute.biz.keycloak.service;
 
-import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
 import com.muchencute.biz.keycloak.model.Group;
-import jakarta.persistence.EntityNotFoundException;
+import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
+import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,7 +77,7 @@ public class KeycloakGroupService {
   public Group getGroup(String id) {
 
     final var groupEntity = keycloakGroupRepository.findById(id)
-      .orElseThrow(() -> new EntityNotFoundException("Group not found"));
+      .orElseThrow(() -> new NotFoundException("Group not found"));
     return new Group(groupEntity.getId(), groupEntity.getName(), groupEntity.getParentGroup());
   }
 

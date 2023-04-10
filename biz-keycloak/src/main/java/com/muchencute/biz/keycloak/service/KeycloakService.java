@@ -158,7 +158,14 @@ public class KeycloakService {
 
     final var groupRepresentation = getGroupsResource().group(id).toRepresentation();
     groupRepresentation.setName(name);
-    getGroupsResource().group(id).update(groupRepresentation);
+    try {
+      getGroupsResource().group(id).update(groupRepresentation);
+    } catch (ClientErrorException e) {
+      if (e.getResponse().getStatus() == 409) {
+        throw new ConflictException();
+      }
+      throw e;
+    }
     return getGroupsResource().group(id);
   }
 
@@ -186,11 +193,17 @@ public class KeycloakService {
     if (StrUtil.isNotBlank(parentId)) {
       final var groupResource = getGroupsResource().group(parentId);
       @Cleanup final var response = groupResource.subGroup(groupRepresentation);
-      return CreatedResponseUtil.getCreatedId(response);
+      if (response.getStatus() == 201) {
+        return CreatedResponseUtil.getCreatedId(response);
+      }
+      throw new ConflictException();
     }
 
-    final var response = getGroupsResource().add(groupRepresentation);
-    return CreatedResponseUtil.getCreatedId(response);
+    @Cleanup final var response = getGroupsResource().add(groupRepresentation);
+    if (response.getStatus() == 201) {
+      return CreatedResponseUtil.getCreatedId(response);
+    }
+    throw new ConflictException();
   }
 
   public RoleResource newRoleResource(String roleName) {
