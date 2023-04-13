@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,7 @@ import java.util.Set;
 @RequestMapping("user")
 @Slf4j
 @Validated
+@ConditionalOnProperty(name = "keycloak.use-endpoints", matchIfMissing = true)
 public class UserController {
 
   private final KeycloakService keycloakService;

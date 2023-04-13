@@ -21,8 +21,6 @@ spring:
       autoconfiguration:
         jackson:
           enabled: true
-  profiles:
-    active: @activatedProfile@
   security:
     oauth2:
       resourceserver:
@@ -49,6 +47,7 @@ keycloak:
   realm: ${KEYCLOAK_REALM:app}
   client-id: ${KEYCLOAK_CLIENT_ID:console-cli}
   auth-server-url: http://${KEYCLOAK_HOST:localhost}:8080/auth
+  use-endpoints: false
   admin:
     password: admin
     username: admin

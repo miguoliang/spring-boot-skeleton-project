@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Example;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Tag(name = "部门管理")
 @RestController
 @RequestMapping("group")
+@ConditionalOnProperty(name = "keycloak.use-endpoints", matchIfMissing = true)
 public class GroupController {
 
   private final KeycloakGroupService keycloakGroupService;

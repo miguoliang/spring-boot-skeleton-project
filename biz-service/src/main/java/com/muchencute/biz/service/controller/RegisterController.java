@@ -35,6 +35,7 @@ public class RegisterController {
     if (request.getUsername().startsWith("reserved_")) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请务使用 reserved_ 开头命名！");
     }
-    return keycloakUserService.registerUser(request);
+    final var userId = keycloakUserService.registerUser(request);
+    return keycloakUserService.getUser(userId);
   }
 }
