@@ -210,4 +210,23 @@ class UserControllerTest extends KeycloakTestEnvironment {
       .andExpect(status().isOk())
       .andDo(document("user/delete/ok"));
   }
+
+  @Test
+  @SneakyThrows
+  void user_delete_not_exists() {
+
+    mockMvc.perform(delete("/user/{id}", "not-exists"))
+      .andExpect(status().isNotFound())
+      .andDo(document("user/delete/not-exists"));
+  }
+
+  @Test
+  @SneakyThrows
+  void user_delete_self_should_fail() {
+
+    // Test Profile 下 JwtHelper.getUserId 会返回 username 本身。
+    mockMvc.perform(delete("/user/admin"))
+      .andExpect(status().isBadRequest())
+      .andDo(document("user/delete/self-fail"));
+  }
 }

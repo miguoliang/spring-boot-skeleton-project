@@ -93,7 +93,8 @@ public abstract class KeycloakTestEnvironment {
     .withEnv("KEYCLOAK_HTTP_RELATIVE_PATH", "/auth")
     .withExposedPorts(8080)
     .withLogConsumer(new Slf4jLogConsumer(log))
-    .dependsOn(postgres);
+    .dependsOn(postgres)
+    .withReuse(true);
 
   private static String keycloakAuthServerUrl;
 
