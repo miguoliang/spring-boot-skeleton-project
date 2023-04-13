@@ -4,6 +4,7 @@ import com.muchencute.biz.keycloak.model.KeycloakGroup;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,4 +18,5 @@ public interface KeycloakGroupRepository extends JpaRepository<KeycloakGroup, St
 
   Optional<KeycloakGroup> findByNameAndParentGroup(String name, String parentGroup);
 
+  Collection<KeycloakGroup> findByUsers_IdAndRealmId(String id, String idOfRealm);
 }

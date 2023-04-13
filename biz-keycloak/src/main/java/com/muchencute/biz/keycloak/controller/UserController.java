@@ -102,17 +102,20 @@ public class UserController {
   public User newUser(@Valid @RequestBody NewUserRequest request) {
 
     if (request.getUsername().startsWith("reserved_")) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请务使用 reserved_ 开头命名！");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请wu使用 reserved_ 开头命名！");
     }
-    return keycloakUserService.newUser(request);
+    final var userId = keycloakUserService.newUser(request);
+    return keycloakUserService.getUser(userId);
   }
 
   @PutMapping("/{id}")
   @Operation(summary = "编辑用户")
   @PreAuthorize("hasAnyAuthority('user:crud')")
   @SneakyThrows
-  public User updateUser(@PathVariable String id,
-                         @RequestBody UpdateUserRequest request) {
+  public User updateUser(@NotProtectedUserOrRole(
+    resourceType = NotProtectedUserOrRole.ResourceType.USER,
+    fieldType = NotProtectedUserOrRole.FieldType.ID
+  ) @PathVariable String id, @RequestBody UpdateUserRequest request) {
 
     return keycloakUserService.updateUser(id, request);
   }
@@ -121,6 +124,7 @@ public class UserController {
   @Operation(summary = "用户查看")
   @PreAuthorize("hasAnyAuthority('user:crud')")
   @SneakyThrows
+  @Transactional("keycloakTransactionManager")
   public User getUser(@PathVariable String id) {
 
     return keycloakUserService.getUser(id);
@@ -152,7 +156,9 @@ public class UserController {
   @PostMapping("/{id}:enable")
   @Operation(summary = "启用用户")
   @PreAuthorize("hasAnyAuthority('user:crud')")
-  public void enableUser(@PathVariable("id") String id) {
+  public void enableUser(@NotProtectedUserOrRole(
+    resourceType = NotProtectedUserOrRole.ResourceType.USER,
+    fieldType = NotProtectedUserOrRole.FieldType.ID) @PathVariable("id") String id) {
 
     final var userResource = keycloakService.getUserResourceById(id);
     final var userRepresentation = userResource.toRepresentation();

@@ -5,12 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.muchencute.biz.keycloak.helper.JwtHelper;
 import com.muchencute.biz.keycloak.model.*;
-import com.muchencute.biz.keycloak.repository.EventEntityRepository;
-import com.muchencute.biz.keycloak.repository.UserEntityRepository;
+import com.muchencute.biz.keycloak.repository.*;
 import com.muchencute.biz.keycloak.request.NewUserRequest;
 import com.muchencute.biz.keycloak.request.RegisterUserRequest;
 import com.muchencute.biz.keycloak.request.UpdateUserRequest;
 import jakarta.persistence.criteria.JoinType;
+import jakarta.ws.rs.NotFoundException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.CredentialRepresentation;
@@ -32,26 +32,37 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @Transactional(transactionManager = "keycloakTransactionManager")
 public class KeycloakUserService {
+  private final KeycloakRoleRepository keycloakRoleRepository;
+  private final UserAttributeRepository userAttributeRepository;
 
   private final EventEntityRepository eventEntityRepository;
 
   private final KeycloakService keycloakService;
+
+  private final KeycloakGroupRepository keycloakGroupRepository;
 
   private final UserEntityRepository userEntityRepository;
 
   @Autowired
   public KeycloakUserService(KeycloakService keycloakService,
                              UserEntityRepository userEntityRepository,
-                             EventEntityRepository eventEntityRepository) {
+                             EventEntityRepository eventEntityRepository,
+                             UserAttributeRepository userAttributeRepository,
+                             KeycloakRoleRepository keycloakRoleRepository,
+                             KeycloakGroupRepository keycloakGroupRepository) {
 
     this.keycloakService = keycloakService;
     this.userEntityRepository = userEntityRepository;
     this.eventEntityRepository = eventEntityRepository;
+    this.userAttributeRepository = userAttributeRepository;
+    this.keycloakRoleRepository = keycloakRoleRepository;
+    this.keycloakGroupRepository = keycloakGroupRepository;
   }
 
   private static void setCredential(String password, UserRepresentation ur) {
@@ -66,17 +77,17 @@ public class KeycloakUserService {
   private static Specification<UserEntity> isRealm(String realm) {
 
     return (root, query, criteriaBuilder) ->
-            criteriaBuilder.equal(root.get(UserEntity_.REALM_ID), realm);
+      criteriaBuilder.equal(root.get(UserEntity_.REALM_ID), realm);
   }
 
   private static Specification<UserEntity> nameLike(String keyword) {
 
     return (root, query, criteriaBuilder) ->
-            StrUtil.isNotBlank(keyword) ?
-                    criteriaBuilder.or(
-                            criteriaBuilder.like(root.get(UserEntity_.FIRST_NAME), "%" + keyword + "%"),
-                            criteriaBuilder.like(root.get(UserEntity_.USERNAME), "%" + keyword + "%")) :
-                    criteriaBuilder.and();
+      StrUtil.isNotBlank(keyword) ?
+        criteriaBuilder.or(
+          criteriaBuilder.like(root.get(UserEntity_.FIRST_NAME), "%" + keyword + "%"),
+          criteriaBuilder.like(root.get(UserEntity_.USERNAME), "%" + keyword + "%")) :
+        criteriaBuilder.and();
   }
 
   private static Specification<UserEntity> statusIn(Set<String> statusSet) {
@@ -87,8 +98,8 @@ public class KeycloakUserService {
       }
       final var attributeJoin = root.<UserEntity, UserAttribute>join("attributes", JoinType.INNER);
       return criteriaBuilder.and(
-              criteriaBuilder.equal(attributeJoin.get("name"), "status"),
-              attributeJoin.get("value").in(statusSet)
+        criteriaBuilder.equal(attributeJoin.get("name"), "status"),
+        attributeJoin.get("value").in(statusSet)
       );
     };
   }
@@ -118,10 +129,10 @@ public class KeycloakUserService {
   private Specification<UserEntity> userNameNotStart() {
 
     return (root, query, criteriaBuilder) ->
-            criteriaBuilder.notLike(root.get(UserEntity_.USERNAME), "reserved_%");
+      criteriaBuilder.notLike(root.get(UserEntity_.USERNAME), "reserved_%");
   }
 
-  public User registerUser(RegisterUserRequest request) {
+  public String registerUser(RegisterUserRequest request) {
 
     final var ur = new UserRepresentation();
     ur.setUsername(request.getUsername());
@@ -133,15 +144,15 @@ public class KeycloakUserService {
 
     setCredential(request.getPassword(), ur);
 
-    final var userResource = keycloakService.newUserResource(ur);
+    final var userId = keycloakService.newUserResource(ur);
     if (StrUtil.isNotBlank(request.getGroupId())) {
-      userResource.joinGroup(request.getGroupId());
+      keycloakService.getUserResourceById(userId).joinGroup(request.getGroupId());
     }
 
-    return getUserResponse(userResource.toRepresentation().getId());
+    return userId;
   }
 
-  public User newUser(NewUserRequest request) {
+  public String newUser(NewUserRequest request) {
 
     final var ur = new UserRepresentation();
     ur.setUsername(request.getUsername());
@@ -152,73 +163,68 @@ public class KeycloakUserService {
 
     setCredential(request.getPassword(), ur);
 
-    final var userResource = keycloakService.newUserResource(ur);
+    final var userId = keycloakService.newUserResource(ur);
     if (StrUtil.isNotBlank(request.getGroupId())) {
-      userResource.joinGroup(request.getGroupId());
+      keycloakService.getUserResourceById(userId).joinGroup(request.getGroupId());
     }
 
-    final var userRepresentation = userResource.toRepresentation();
+    final var userRepresentation = keycloakService.getUserResourceById(userId).toRepresentation();
     if (StrUtil.isNotBlank(request.getRoleId())) {
       final var roleRepresentation = keycloakService.getRealmResource().rolesById()
-              .getRole(request.getRoleId());
+        .getRole(request.getRoleId());
       keycloakService.attachRoleResource(userRepresentation.getUsername(), roleRepresentation);
       keycloakService.acceptUser(userRepresentation.getId());
     }
-
-    return getUserResponse(userRepresentation.getId());
+    return userId;
   }
 
-  private User getUserResponse(UserEntity user) {
+  private User getUserResponse(UserEntity userEntity) {
 
-    final var builder = User.builder()
-            .id(user.getId())
-            .username(user.getUsername())
-            .enabled(user.getEnabled())
-            .phoneNumber(user
-                    .getAttributes()
-                    .stream()
-                    .filter(it -> "phoneNumber".equals(it.getName()))
-                    .findFirst().orElseGet(UserAttribute::new)
-                    .getValue())
-            .name(user.getFirstName())
-            .createdAt(user.getCreatedTimestamp());
+    final var user = new User();
+    user.setId(userEntity.getId());
+    user.setUsername(userEntity.getUsername());
+    user.setName(userEntity.getFirstName());
+    user.setCreatedAt(userEntity.getCreatedTimestamp());
 
-    if (CollUtil.isNotEmpty(user.getRoles())) {
-      user.getRoles()
-              .stream()
-              .filter(KeycloakRole::getClientRole)
-              .findFirst()
-              .ifPresent(role -> builder.role(Role.builder()
-                      .id(role.getId())
-                      .name(role.getName())
-                      .build()));
-    }
+    final var roles = keycloakRoleRepository.findByUsers_IdAndClientRoleTrueAndClientAndRealmId(userEntity.getId(),
+        keycloakService.getClientId(), keycloakService.getIdOfRealm())
+      .stream().map(KeycloakRole::getName).collect(Collectors.toSet());
+    user.setRoles(roles);
 
-    if (CollUtil.isNotEmpty(user.getGroups())) {
-      final var group = user.getGroups().stream().findFirst().orElseThrow();
-      builder.group(Group.builder()
-              .id(group.getId())
-              .name(group.getName())
-              .build());
-    }
+    final var groups = keycloakGroupRepository.findByUsers_IdAndRealmId(userEntity.getId(),
+        keycloakService.getIdOfRealm())
+      .stream().map(KeycloakGroup::getName).collect(Collectors.toSet());
+    user.setGroups(groups);
 
-    eventEntityRepository.countByIpAddress(user.getId()).stream().findFirst().ifPresent(it ->
-            builder.commonIp(it[0].toString()));
+    // 手机号
+    userAttributeRepository.findByUserEntity_IdAndName(userEntity.getId(), "phoneNumber")
+      .ifPresent(it -> user.setPhoneNumber(it.getValue()));
 
+    // 图片
+    userAttributeRepository.findByUserEntity_IdAndName(userEntity.getId(), "picture")
+      .ifPresent(it -> user.setPicture(it.getValue()));
+
+    // 常用地址
+    eventEntityRepository.countByIpAddress(user.getId())
+      .stream()
+      .findFirst()
+      .ifPresent(it -> user.setCommonIp(it[0].toString()));
+
+    // 最后登录地址和时间
     eventEntityRepository.findFirstByUserIdAndTypeIsOrderByEventTimeDesc(user.getId(), "LOGIN")
-            .ifPresent(it -> {
-              builder.lastLoginIp(it.getIpAddress());
-              builder.lastLoginTime(it.getEventTime());
-            });
+      .ifPresent(it -> {
+        user.setLastLoginIp(it.getIpAddress());
+        user.setLastLoginTime(it.getEventTime());
+      });
 
-    return builder.build();
+    return user;
   }
 
   private User getUserResponse(String id) {
 
     final var user = userEntityRepository
-            .findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+      .findById(id)
+      .orElseThrow(NotFoundException::new);
     return getUserResponse(user);
   }
 
@@ -227,13 +233,13 @@ public class KeycloakUserService {
                              Pageable pageable) {
 
     final var users = userEntityRepository.findAll(
-            Specification
-                    .where(nameLike(keyword))
-                    .and(isRealm(keycloakService.getRealm()))
-                    .and(statusIn(statusSet))
-                    .and(roleIs(roleId))
-                    .and(groupIn(groupIds))
-                    .and(userNameNotStart()), pageable);
+      Specification
+        .where(nameLike(keyword))
+        .and(isRealm(keycloakService.getIdOfRealm()))
+        .and(statusIn(statusSet))
+        .and(roleIs(roleId))
+        .and(groupIn(groupIds))
+        .and(userNameNotStart()), pageable);
 
     final var content = users.getContent().stream().map(this::getUserResponse).toList();
     return new PageImpl<>(content, pageable, users.getTotalElements());
@@ -247,8 +253,8 @@ public class KeycloakUserService {
     userRepresentation.singleAttribute("status", "normal");
     userResource.update(userRepresentation);
     Optional.ofNullable(userRepresentation.getCredentials())
-            .ifPresent(credentialRepresentations ->
-                    credentialRepresentations.forEach(it -> userResource.removeCredential(it.getId())));
+      .ifPresent(credentialRepresentations ->
+        credentialRepresentations.forEach(it -> userResource.removeCredential(it.getId())));
 
     final var cr = new CredentialRepresentation();
     cr.setType("password");
@@ -274,7 +280,7 @@ public class KeycloakUserService {
     keycloakService.detachAllRoleResource(userRepresentation.getUsername());
     if (StrUtil.isNotBlank(request.getRoleId())) {
       final var roleRepresentation = keycloakService.getRealmResource().rolesById()
-              .getRole(request.getRoleId());
+        .getRole(request.getRoleId());
       keycloakService.attachRoleResource(userRepresentation.getUsername(), roleRepresentation);
     }
 
@@ -283,20 +289,7 @@ public class KeycloakUserService {
 
   public User getUser(String id) {
 
-    final var userRepresentation = keycloakService.getUserResourceById(id).toRepresentation();
-    return getUserResponse(userRepresentation.getId());
-  }
-
-  public void resetUserCredentialByAnonymous(String username) {
-
-    final var userResource = keycloakService.getUserResource(username);
-    final var userRepresentation = userResource.toRepresentation();
-    userRepresentation.setEnabled(false);
-    userRepresentation.singleAttribute("status", "reset-password");
-    userResource.update(userRepresentation);
-    Optional.ofNullable(userRepresentation.getCredentials())
-            .ifPresent(credentialRepresentations ->
-                    credentialRepresentations.forEach(it -> userResource.removeCredential(it.getId())));
+    return getUserResponse(id);
   }
 
   @SneakyThrows
@@ -304,8 +297,8 @@ public class KeycloakUserService {
 
     final var username = JwtHelper.getUsername();
     final var userEntity = userEntityRepository.findByUsernameAndRealmId(username,
-                    keycloakService.getRealm())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "当前用户不存在！"));
+        keycloakService.getRealm())
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "当前用户不存在！"));
     if (!userEntity.getEnabled()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "当前用户已被禁用！");
     }
@@ -325,7 +318,7 @@ public class KeycloakUserService {
     final var userResource = keycloakService.getUserResource(username);
     final var userRepresentation = userResource.toRepresentation();
     Optional.ofNullable(userRepresentation.getCredentials()).ifPresent(
-            credential -> credential.forEach(it -> userResource.removeCredential(it.getId())));
+      credential -> credential.forEach(it -> userResource.removeCredential(it.getId())));
     final var credentialRepresentation = new CredentialRepresentation();
     credentialRepresentation.setValue(password);
     credentialRepresentation.setType("password");
@@ -337,21 +330,21 @@ public class KeycloakUserService {
   private void checkUsernameAndPassword(String username, String password) {
 
     final var tokenUrl = String.format("%s/realms/%s/protocol/openid-connect/token",
-            keycloakService.getAuthServerUrl(),
-            keycloakService.getRealm());
+      keycloakService.getAuthServerUrl(),
+      keycloakService.getRealm());
     // 因为 console-cli 出于安全考虑，禁止了通过 API 直接获取 token，所以要验证原密码是否正确，需要借道
     // 不支持页面登录的 client，此处借用的是专为模型调用的 model-cli
     final var jsonObject = WebClient.create(tokenUrl)
-            .post()
-            .body(BodyInserters.fromFormData("client_id", "model-cli")
-                    .with("username", username)
-                    .with("password", password)
-                    .with("client_secret", "22ISi1NmKgkpUm3xJjdqvURIafg2ZLpx")
-                    .with("grant_type", "password"))
-            .accept(MediaType.APPLICATION_JSON)
-            .exchangeToMono(clientResponse -> clientResponse.statusCode().equals(HttpStatus.OK)
-                    ? clientResponse.bodyToMono(JSONObject.class) : Mono.empty())
-            .block();
+      .post()
+      .body(BodyInserters.fromFormData("client_id", "model-cli")
+        .with("username", username)
+        .with("password", password)
+        .with("client_secret", "22ISi1NmKgkpUm3xJjdqvURIafg2ZLpx")
+        .with("grant_type", "password"))
+      .accept(MediaType.APPLICATION_JSON)
+      .exchangeToMono(clientResponse -> clientResponse.statusCode().equals(HttpStatus.OK)
+        ? clientResponse.bodyToMono(JSONObject.class) : Mono.empty())
+      .block();
 
     if (jsonObject == null) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "原密码错误！");

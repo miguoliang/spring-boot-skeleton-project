@@ -11,7 +11,10 @@ import lombok.Getter;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.*;
-import org.keycloak.representations.idm.*;
+import org.keycloak.representations.idm.ClientScopeRepresentation;
+import org.keycloak.representations.idm.GroupRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -119,34 +122,13 @@ public class KeycloakService {
     return getUsersResource().get(id);
   }
 
-  public UserResource newUserResource(String username, String name, String phone, String password,
-                                      boolean enabled) {
+  public String newUserResource(UserRepresentation userRepresentation) {
 
-    final var userRepresentation = new UserRepresentation();
-    userRepresentation.setFirstName(name);
-    userRepresentation.setEnabled(enabled);
-    userRepresentation.setUsername(username);
-    userRepresentation.singleAttribute("phoneNumber", phone);
-
-    final var credential = new CredentialRepresentation();
-    credential.setType("password");
-    credential.setTemporary(false);
-    credential.setValue(password);
-    userRepresentation.setCredentials(List.of(credential));
-
-    final var response = getUsersResource().create(userRepresentation);
-    final var userId = CreatedResponseUtil.getCreatedId(response);
-    return getUsersResource().get(userId);
-  }
-
-  public UserResource newUserResource(UserRepresentation userRepresentation) {
-
-    final var response = getUsersResource().create(userRepresentation);
+    @Cleanup final var response = getUsersResource().create(userRepresentation);
     if (response.getStatus() == 409) {
       throw new ConflictException();
     }
-    final var userId = CreatedResponseUtil.getCreatedId(response);
-    return getUsersResource().get(userId);
+    return CreatedResponseUtil.getCreatedId(response);
   }
 
   public GroupsResource getGroupsResource() {
@@ -154,7 +136,7 @@ public class KeycloakService {
     return keycloak.realm(realm).groups();
   }
 
-  public GroupResource renameGroupResource(String id, String name) {
+  public void renameGroupResource(String id, String name) {
 
     final var groupRepresentation = getGroupsResource().group(id).toRepresentation();
     groupRepresentation.setName(name);
@@ -166,7 +148,7 @@ public class KeycloakService {
       }
       throw e;
     }
-    return getGroupsResource().group(id);
+    getGroupsResource().group(id);
   }
 
   public void moveGroupResource(String id, String parentId) {

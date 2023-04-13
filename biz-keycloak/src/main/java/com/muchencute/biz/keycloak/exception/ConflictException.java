@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class ConflictException extends RuntimeException {
 
   public ConflictException() {
-    super();
+    super("HTTP Conflict 409");
   }
 
   public ConflictException(String message) {

@@ -9,25 +9,33 @@ import com.muchencute.biz.keycloak.service.KeycloakService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+@Component
 public class NotProtectedUserOrRoleValidator implements
   ConstraintValidator<NotProtectedUserOrRole, Object> {
 
-  private final Set<String> PROTECTED_USERNAMES;
+  private final Set<String> PROTECTED_USERNAMES = new HashSet<>();
 
-  private final Set<String> PROTECTED_USER_IDS;
+  private final Set<String> PROTECTED_USER_IDS = new HashSet<>();
 
-  private final Set<String> PROTECTED_ROLE_NAMES;
+  private final Set<String> PROTECTED_ROLE_NAMES = new HashSet<>();
 
-  private final Set<String> PROTECTED_ROLE_IDS;
+  private final Set<String> PROTECTED_ROLE_IDS = new HashSet<>();
+  private final KeycloakConfig keycloakConfig;
+  private final KeycloakService keycloakService;
+  private final UserEntityRepository userEntityRepository;
+  private final KeycloakRoleRepository keycloakRoleRepository;
 
+  private final boolean containsTestProfile;
   private NotProtectedUserOrRole.FieldType fieldType;
-
   private NotProtectedUserOrRole.ResourceType resourceType;
 
   @Autowired
@@ -35,7 +43,19 @@ public class NotProtectedUserOrRoleValidator implements
     KeycloakConfig keycloakConfig,
     KeycloakService keycloakService,
     UserEntityRepository userEntityRepository,
-    KeycloakRoleRepository keycloakRoleRepository) {
+    KeycloakRoleRepository keycloakRoleRepository, Environment environment) {
+
+    this.keycloakConfig = keycloakConfig;
+    this.keycloakService = keycloakService;
+    this.userEntityRepository = userEntityRepository;
+    this.keycloakRoleRepository = keycloakRoleRepository;
+
+    containsTestProfile = environment.acceptsProfiles(Profiles.of("test"));
+
+    reloadProtectedUsersAndRoles();
+  }
+
+  private void reloadProtectedUsersAndRoles() {
 
     final var idOfRealm = keycloakService.getIdOfRealm();
     final var idOfClient = keycloakService.getIdOfClient();
@@ -49,10 +69,15 @@ public class NotProtectedUserOrRoleValidator implements
         idOfRealm,
         idOfClient);
 
-    PROTECTED_USERNAMES = protectedUsers.stream().map(UserEntity::getUsername).collect(Collectors.toSet());
-    PROTECTED_USER_IDS = protectedUsers.stream().map(UserEntity::getId).collect(Collectors.toSet());
-    PROTECTED_ROLE_NAMES = protectedRoles.stream().map(KeycloakRole::getName).collect(Collectors.toSet());
-    PROTECTED_ROLE_IDS = protectedRoles.stream().map(KeycloakRole::getId).collect(Collectors.toSet());
+    PROTECTED_USERNAMES.clear();
+    PROTECTED_USER_IDS.clear();
+    PROTECTED_ROLE_NAMES.clear();
+    PROTECTED_ROLE_IDS.clear();
+
+    PROTECTED_USERNAMES.addAll(protectedUsers.stream().map(UserEntity::getUsername).toList());
+    PROTECTED_USER_IDS.addAll(protectedUsers.stream().map(UserEntity::getId).toList());
+    PROTECTED_ROLE_NAMES.addAll(protectedRoles.stream().map(KeycloakRole::getName).toList());
+    PROTECTED_ROLE_IDS.addAll(protectedRoles.stream().map(KeycloakRole::getId).toList());
   }
 
   @Override
@@ -67,6 +92,8 @@ public class NotProtectedUserOrRoleValidator implements
   public boolean isValid(Object value, ConstraintValidatorContext context) {
 
     final var items = normalize(value);
+
+    reloadProtectedUsersAndRolesEverytimeInTestProfile();
 
     if (items.isEmpty()) {
       return true;
@@ -101,6 +128,23 @@ public class NotProtectedUserOrRoleValidator implements
       return list.stream().map(Object::toString).toList();
     } else {
       throw new IllegalArgumentException("不支持的类型：" + value.getClass());
+    }
+  }
+
+  /**
+   * 在测试环境下，每次都重新加载受保护的用户和角色
+   * <p>
+   * 因为在测试环境下，可能会有多个测试方法，而对应同样一组参数 Hibernate Validator 指挥生成一个对应的 Validator 实例，
+   * 并且，由于 Validator 不是一个 Spring Bean，所以无法通过 getBean 方法得到，若要得到需要通过反射的方式，这样就会导致
+   * 很复杂的代码去实现一个简单的功能，因此，为了方便测试的进行，在测试环境下每次都会尝试重新读取配置文件列表来重新加载受保护的用户和角色。
+   * <p>
+   * 另外一个原因是，测试环境下每个方法执行前都会清空并重新创建角色和用户，这会导致 id 的变化，
+   * 因此，为了能匹配上对应的名称和 id，所以需要重新初始化对应的常量。
+   */
+  void reloadProtectedUsersAndRolesEverytimeInTestProfile() {
+
+    if (containsTestProfile) {
+      reloadProtectedUsersAndRoles();
     }
   }
 }

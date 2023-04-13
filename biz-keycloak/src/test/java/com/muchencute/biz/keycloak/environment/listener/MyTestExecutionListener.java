@@ -48,11 +48,6 @@ public class MyTestExecutionListener implements TestExecutionListener, Ordered {
     testContext.getApplicationContext()
       .getAutowireCapableBeanFactory()
       .autowireBean(this);
-
-    final var annotations = testContext.getTestClass().getAnnotations();
-    for (final var annotation : annotations) {
-      actionHub(annotation);
-    }
   }
 
   @Override
@@ -121,8 +116,9 @@ public class MyTestExecutionListener implements TestExecutionListener, Ordered {
     final var request = new NewUserRequest();
     request.setUsername(mockUser.username());
     request.setPassword(mockUser.password());
-    final var createdUser = keycloakUserService.newUser(request);
-    log.info("newUser: {}", createdUser);
+    final var userId = keycloakUserService.newUser(request);
+    final var user = keycloakUserService.getUser(userId);
+    log.info("newUser: {}", user);
   }
 
   @Override

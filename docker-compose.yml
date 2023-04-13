@@ -15,7 +15,7 @@ services:
       - biz-postgres-data:/var/lib/postgresql/data
 
   keycloak:
-    image: bitnami/keycloak:21.0.2-debian-11-r1
+    image: bitnami/keycloak:20.0.5-debian-11-r13
     restart: always
     environment:
       - KEYCLOAK_DATABASE_HOST=postgres

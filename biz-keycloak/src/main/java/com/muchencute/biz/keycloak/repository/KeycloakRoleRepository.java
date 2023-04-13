@@ -12,4 +12,7 @@ public interface KeycloakRoleRepository extends JpaRepository<KeycloakRole, Stri
   boolean existsByNameAndClientRole(String roleName, Boolean clientRole);
 
   Set<KeycloakRole> findByNameInAndRealmIdAndClientAndClientRoleIsTrue(Set<String> name, String realmId, String client);
+
+  Set<KeycloakRole> findByUsers_IdAndClientRoleTrueAndClientAndRealmId(String id, String client, String realmId);
+
 }

@@ -1,6 +1,5 @@
 package com.muchencute.biz.keycloak.controller;
 
-
 import com.muchencute.biz.keycloak.model.Role;
 import com.muchencute.biz.keycloak.repository.KeycloakRoleRepository;
 import com.muchencute.biz.keycloak.request.NewRoleRequest;
@@ -57,7 +56,11 @@ public class RoleController {
 
   @PutMapping("{roleName}")
   @PreAuthorize("hasAnyAuthority('role:crud')")
-  public Role updateRole(@PathVariable String roleName, @RequestBody Set<String> scopes) {
+  public Role updateRole(
+    @NotProtectedUserOrRole(
+      resourceType = NotProtectedUserOrRole.ResourceType.ROLE,
+      fieldType = NotProtectedUserOrRole.FieldType.NAME
+    ) @PathVariable String roleName, @RequestBody Set<String> scopes) {
 
     return roleService.updateRole(roleName, scopes);
   }
@@ -86,7 +89,10 @@ public class RoleController {
 
   @PostMapping(path = "{roleName}:rename", consumes = "text/plain")
   @PreAuthorize("hasAnyAuthority('role:crud')")
-  public Role renameRole(@PathVariable String roleName, @RequestBody String newRoleName) {
+  public Role renameRole(@NotProtectedUserOrRole(
+    resourceType = NotProtectedUserOrRole.ResourceType.ROLE,
+    fieldType = NotProtectedUserOrRole.FieldType.NAME
+  ) @PathVariable String roleName, @RequestBody String newRoleName) {
 
     return roleName.equals(newRoleName) ? roleService.getRole(roleName)
       : roleService.renameRole(roleName, newRoleName);

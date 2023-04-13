@@ -1,5 +1,6 @@
 package com.muchencute.biz.keycloak.environment;
 
+import cn.hutool.core.util.StrUtil;
 import com.muchencute.biz.keycloak.advisor.ControllerExceptionHandler;
 import com.muchencute.biz.keycloak.config.KeycloakConfig;
 import com.muchencute.biz.keycloak.datasource.Keycloak;
@@ -9,7 +10,6 @@ import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
 import com.muchencute.biz.keycloak.repository.KeycloakRoleRepository;
 import com.muchencute.biz.keycloak.repository.UserEntityRepository;
 import com.muchencute.biz.keycloak.service.*;
-import com.muchencute.biz.keycloak.validator.NotProtectedUserOrRoleValidator;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -17,6 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.keycloak.representations.idm.ClientRepresentation;
+import org.keycloak.representations.idm.RealmRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.restdocs.RestDocumentationContextProvider;
@@ -59,7 +61,6 @@ import org.testcontainers.utility.DockerImageName;
   KeycloakRoleService.class,
   KeycloakService.class,
   KeycloakUserService.class,
-  NotProtectedUserOrRoleValidator.class,
   UserEntityRepository.class,
 })
 @WebMvcTest
@@ -90,15 +91,17 @@ public abstract class KeycloakTestEnvironment {
     .withEnv("KEYCLOAK_DATABASE_PASSWORD", PGSQL_ROOT_PASSWORD)
     .withEnv("KEYCLOAK_PROXY", "edge")
     .withEnv("KEYCLOAK_HTTP_RELATIVE_PATH", "/auth")
-    .withEnv("KEYCLOAK_EXTRA_ARGS", "-Dkeycloak.import=/tmp/realm.json")
-    .withClasspathResourceMapping("realm-export.json", "/tmp/realm.json", BindMode.READ_ONLY)
     .withExposedPorts(8080)
     .withLogConsumer(new Slf4jLogConsumer(log))
-    .dependsOn(postgres)
-    .withReuse(true);
+    .dependsOn(postgres);
+
+  private static String keycloakAuthServerUrl;
+
   @RegisterExtension
   final RestDocumentationExtension restDocumentation = new RestDocumentationExtension();
+
   protected MockMvc mockMvc;
+
   @Autowired
   protected KeycloakService keycloakService;
 
@@ -107,19 +110,23 @@ public abstract class KeycloakTestEnvironment {
   static void bindProperties(DynamicPropertyRegistry registry) {
 
     final var network = Network.newNetwork();
-
     postgres.withNetwork(network).withNetworkAliases("postgres").start();
     final var keycloakJdbcUrl = postgres.getJdbcUrl().replace("test", "keycloak");
     keycloak.withNetwork(network).withNetworkAliases("keycloak").start();
-    registry.add("keycloak.auth-server-url", () -> String.format("http://%s:%d/auth",
-      keycloak.getHost(), keycloak.getMappedPort(8080)));
+
+    if (StrUtil.isBlank(keycloakAuthServerUrl)) {
+      keycloakAuthServerUrl = String.format("http://%s:%d/auth",
+        keycloak.getHost(), keycloak.getMappedPort(8080));
+      initKeycloakRealmSettings(keycloakAuthServerUrl);
+    }
+
+    registry.add("keycloak.auth-server-url", () -> keycloakAuthServerUrl);
     registry.add("keycloak.realm", () -> "app");
     registry.add("keycloak.client-id", () -> "console-cli");
     registry.add("keycloak.admin.username", () -> "admin");
     registry.add("keycloak.admin.password", () -> "admin");
     registry.add("spring.security.oauth2.resourceserver.jwt.jwk-set-uri",
-      () -> String.format("http://%s:%s/auth/realms/app/protocol/openid-connect/certs",
-        keycloak.getHost(), keycloak.getMappedPort(8080)));
+      () -> String.format("%s/realms/app/protocol/openid-connect/certs", keycloakAuthServerUrl));
     registry.add("app.datasource.keycloak.url", () -> keycloakJdbcUrl);
     registry.add("app.datasource.keycloak.jdbcUrl", () -> keycloakJdbcUrl);
     registry.add("app.datasource.keycloak.username", () -> "root");
@@ -127,6 +134,26 @@ public abstract class KeycloakTestEnvironment {
     registry.add("app.datasource.keycloak.driver-class-name", () -> "org.postgresql.Driver");
     registry.add("app.datasource.keycloak.dialect",
       () -> "org.hibernate.dialect.PostgreSQLDialect");
+  }
+
+  static void initKeycloakRealmSettings(String url) {
+
+    final var keycloak = org.keycloak.admin.client.Keycloak.getInstance(
+      url, "master", "admin", "admin", "admin-cli");
+
+    final var realmRepresentation = new RealmRepresentation();
+    realmRepresentation.setRealm("app");
+    realmRepresentation.setEnabled(true);
+    keycloak.realms().create(realmRepresentation);
+
+    final var realmResource = keycloak.realm("app");
+    log.info("Realm id: {}", realmResource.toRepresentation().getId());
+
+    final var clientRepresentation = new ClientRepresentation();
+    clientRepresentation.setClientId("console-cli");
+    clientRepresentation.setProtocol("openid-connect");
+    clientRepresentation.setDirectAccessGrantsEnabled(true);
+    realmResource.clients().create(clientRepresentation).close();
   }
 
   @BeforeEach

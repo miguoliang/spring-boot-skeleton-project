@@ -8,7 +8,6 @@ import com.muchencute.biz.keycloak.request.NewRoleRequest;
 import com.muchencute.biz.keycloak.service.KeycloakRoleService;
 import com.muchencute.biz.keycloak.service.KeycloakUserService;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -44,7 +43,7 @@ class RoleControllerTest extends KeycloakTestEnvironment {
   @MockRole(name = "super_admin")
   @SneakyThrows
   @Transactional("keycloakTransactionManager")
-  void role_delete_protected() {
+  void role_delete_protected_should_fail() {
 
     mockMvc.perform(delete("/role/super_admin"))
       .andExpect(status().isBadRequest())
@@ -63,7 +62,7 @@ class RoleControllerTest extends KeycloakTestEnvironment {
 
   @Test
   @SneakyThrows
-  void role_state_not_exists() {
+  void role_stat_not_exists() {
 
     mockMvc.perform(head("/role").param("roleName", "role_2"))
       .andExpect(status().isNotFound())
@@ -135,6 +134,18 @@ class RoleControllerTest extends KeycloakTestEnvironment {
         .content(objectMapper.writeValueAsString(Set.of("scope_1", "scope_3"))))
       .andExpect(status().isNotFound())
       .andDo(document("role/update/not-exists"));
+  }
+
+  @Test
+  @MockRole(name = "super_admin")
+  @SneakyThrows
+  void role_update_protected_should_fail() {
+
+    mockMvc.perform(put("/role/super_admin")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(Set.of("scope_1", "scope_3"))))
+      .andExpect(status().isBadRequest())
+      .andDo(document("role/update/protected"));
   }
 
   @Test

@@ -9,6 +9,6 @@ public @interface MockUser {
 
   String username();
 
-  String password() default "";
+  String password() default "password";
 }
 

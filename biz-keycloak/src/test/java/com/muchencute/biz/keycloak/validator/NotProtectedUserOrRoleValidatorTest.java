@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.core.env.Environment;
 
 import java.util.Set;
 
@@ -40,11 +40,14 @@ public class NotProtectedUserOrRoleValidatorTest {
 
     final var keycloakRoleRepository = Mockito.mock(KeycloakRoleRepository.class);
     Mockito.when(keycloakRoleRepository.findByNameInAndRealmIdAndClientAndClientRoleIsTrue(Mockito.any(), Mockito.any(), Mockito.any()))
-      .thenReturn(Set.of(mockKeycloakRole("3", "admin"), mockKeycloakRole("4", "super-admin")));
+      .thenReturn(Set.of(mockKeycloakRole("3", "admin"), mockKeycloakRole("4", "super_admin")));
+
+    final var environment = Mockito.mock(Environment.class);
+    Mockito.when(environment.getActiveProfiles()).thenReturn(new String[0]);
 
     // Force reset static fields
-    ReflectionTestUtils.setField(NotProtectedUserOrRoleValidator.class, "initialized", false);
-    validator = new NotProtectedUserOrRoleValidator(keycloakConfig, keycloakService, userEntityRepository, keycloakRoleRepository);
+    validator = new NotProtectedUserOrRoleValidator(keycloakConfig,
+      keycloakService, userEntityRepository, keycloakRoleRepository, environment);
   }
 
   @Test
@@ -55,6 +58,36 @@ public class NotProtectedUserOrRoleValidatorTest {
     Mockito.when(annotation.resourceType()).thenReturn(NotProtectedUserOrRole.ResourceType.USER);
     validator.initialize(annotation);
     assertFalse(validator.isValid("jack", null));
+  }
+
+  @Test
+  void test_validate_role_name_in_protected() {
+
+    final var annotation = Mockito.mock(NotProtectedUserOrRole.class);
+    Mockito.when(annotation.fieldType()).thenReturn(NotProtectedUserOrRole.FieldType.NAME);
+    Mockito.when(annotation.resourceType()).thenReturn(NotProtectedUserOrRole.ResourceType.ROLE);
+    validator.initialize(annotation);
+    assertFalse(validator.isValid("admin", null));
+  }
+
+  @Test
+  void test_validate_username_in_protected_with_id() {
+
+    final var annotation = Mockito.mock(NotProtectedUserOrRole.class);
+    Mockito.when(annotation.fieldType()).thenReturn(NotProtectedUserOrRole.FieldType.ID);
+    Mockito.when(annotation.resourceType()).thenReturn(NotProtectedUserOrRole.ResourceType.USER);
+    validator.initialize(annotation);
+    assertFalse(validator.isValid("1", null));
+  }
+
+  @Test
+  void test_validate_role_name_in_protected_with_id() {
+
+    final var annotation = Mockito.mock(NotProtectedUserOrRole.class);
+    Mockito.when(annotation.fieldType()).thenReturn(NotProtectedUserOrRole.FieldType.ID);
+    Mockito.when(annotation.resourceType()).thenReturn(NotProtectedUserOrRole.ResourceType.ROLE);
+    validator.initialize(annotation);
+    assertFalse(validator.isValid("3", null));
   }
 
   private UserEntity mockUserEntity(String id, String username) {

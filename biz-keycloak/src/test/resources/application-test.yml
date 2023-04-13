@@ -2,6 +2,13 @@ server:
   servlet:
     context-path: /
 
+spring:
+  jpa:
+    show-sql: true
+
 logging:
   level:
-    web: debug
+    org:
+      springframework: trace
+      hibernate:
+        validator: trace

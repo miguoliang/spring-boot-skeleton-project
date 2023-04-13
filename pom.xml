@@ -24,7 +24,6 @@
     <module>bom-misc</module>
     <module>bom-test</module>
     <module>s3-minio</module>
-    <module>test-environment</module>
   </modules>
   <properties>
     <spring-cloud.version>2022.0.2</spring-cloud.version>
