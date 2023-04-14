@@ -16,9 +16,9 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.muchencute.biz.keycloak.repository",
-        entityManagerFactoryRef = "keycloakEntityManager",
-        transactionManagerRef = "keycloakTransactionManager")
+  basePackages = "com.muchencute.biz.keycloak.repository",
+  entityManagerFactoryRef = "keycloakEntityManager",
+  transactionManagerRef = "keycloakTransactionManager")
 public class Keycloak {
 
   private final Environment environment;
@@ -44,9 +44,9 @@ public class Keycloak {
     em.setPackagesToScan("com.muchencute.biz.keycloak.model");
     em.setJpaVendorAdapter(keycloakHibernateJpaVendorAdapter());
     em.setJpaPropertyMap(Map.of(
-            "hibernate.hbm2ddl.auto", "none",
-            "hibernate.show_sql", environment.getProperty("spring.jpa.show-sql", "false"),
-            "jakarta.persistence.sharedCache.mode", "UNSPECIFIED"
+      "hibernate.hbm2ddl.auto", "none",
+      "hibernate.show_sql", environment.getProperty("spring.jpa.show-sql", "false"),
+      "jakarta.persistence.sharedCache.mode", "UNSPECIFIED"
     ));
     return em;
   }
@@ -58,7 +58,7 @@ public class Keycloak {
     hibernateJpaVendorAdapter.setShowSql(true);
     hibernateJpaVendorAdapter.setGenerateDdl(true);
     hibernateJpaVendorAdapter.setDatabasePlatform(
-            environment.getProperty("app.datasource.keycloak.dialect"));
+      environment.getProperty("app.datasource.keycloak.dialect"));
     return hibernateJpaVendorAdapter;
   }
 
@@ -67,7 +67,7 @@ public class Keycloak {
 
     final var transactionManager = new JpaTransactionManager();
     transactionManager.setEntityManagerFactory(
-            keycloakEntityManager().getObject());
+      keycloakEntityManager().getObject());
     return transactionManager;
   }
 }

@@ -21,7 +21,7 @@ public class S3PictureManager implements PictureManager {
 
   @Autowired
   public S3PictureManager(MinioClient minioClient,
-      @Value("${minio.bucket}") String bucket) {
+                          @Value("${minio.bucket}") String bucket) {
 
     this.minioClient = minioClient;
     this.bucket = bucket;
@@ -33,13 +33,13 @@ public class S3PictureManager implements PictureManager {
 
     @Cleanup final var inputStream = new ByteArrayInputStream(bytes);
     final var object = String.format("images_and_videos/%s/%s.%s", DateUtil.today(),
-        MD5.create().digestHex(bytes), extName);
+      MD5.create().digestHex(bytes), extName);
     minioClient.putObject(PutObjectArgs.builder()
-        .contentType(mime)
-        .stream(inputStream, bytes.length, -1)
-        .bucket(bucket)
-        .object(object)
-        .build());
+      .contentType(mime)
+      .stream(inputStream, bytes.length, -1)
+      .bucket(bucket)
+      .object(object)
+      .build());
     return String.format("/%s/%s", bucket, object);
   }
 }

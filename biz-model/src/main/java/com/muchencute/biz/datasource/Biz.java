@@ -22,10 +22,10 @@ import java.util.Map;
 
 @Configuration
 @EnableJpaRepositories(
-        repositoryBaseClass = BaseRepositoryImpl.class,
-        basePackages = "com.muchencute.biz.repository",
-        entityManagerFactoryRef = "bizEntityManager",
-        transactionManagerRef = "bizTransactionManager")
+  repositoryBaseClass = BaseRepositoryImpl.class,
+  basePackages = "com.muchencute.biz.repository",
+  entityManagerFactoryRef = "bizEntityManager",
+  transactionManagerRef = "bizTransactionManager")
 public class Biz {
 
   private final Environment environment;
@@ -64,9 +64,9 @@ public class Biz {
   public HikariDataSource bizDataSource() {
 
     return bizDataSourceProperties()
-            .initializeDataSourceBuilder()
-            .type(HikariDataSource.class)
-            .build();
+      .initializeDataSourceBuilder()
+      .type(HikariDataSource.class)
+      .build();
   }
 
   @Bean(name = "bizEntityManager")
@@ -76,14 +76,14 @@ public class Biz {
 
     final var showSql = environment.getProperty("app.show-sql", "false");
     LocalContainerEntityManagerFactoryBean em
-            = new LocalContainerEntityManagerFactoryBean();
+      = new LocalContainerEntityManagerFactoryBean();
     em.setDataSource(bizDataSource());
     em.setPackagesToScan("com.muchencute.biz.model");
     em.setJpaVendorAdapter(bizHibernateJpaVendorAdapter());
     em.setJpaPropertyMap(Map.of(
-            // 因为 H2 和 PostgresSQL 的大文本类型不一致，因此不能开启 validate，否则会出异常
-            "hibernate.hbm2ddl.auto", "none",
-            "hibernate.show_sql", showSql
+      // 因为 H2 和 PostgresSQL 的大文本类型不一致，因此不能开启 validate，否则会出异常
+      "hibernate.hbm2ddl.auto", "none",
+      "hibernate.show_sql", showSql
     ));
     return em;
   }
@@ -94,13 +94,13 @@ public class Biz {
 
     final var showSql = environment.getProperty("app.show-sql", "false");
     LocalContainerEntityManagerFactoryBean em
-            = new LocalContainerEntityManagerFactoryBean();
+      = new LocalContainerEntityManagerFactoryBean();
     em.setDataSource(bizDataSource());
     em.setPackagesToScan("com.muchencute.biz.model");
     em.setJpaVendorAdapter(bizHibernateJpaVendorAdapter());
     em.setJpaPropertyMap(Map.of(
-            "hibernate.hbm2ddl.auto", "validate",
-            "hibernate.show_sql", showSql
+      "hibernate.hbm2ddl.auto", "validate",
+      "hibernate.show_sql", showSql
     ));
     return em;
   }
@@ -113,7 +113,7 @@ public class Biz {
     hibernateJpaVendorAdapter.setShowSql(true);
     hibernateJpaVendorAdapter.setGenerateDdl(true);
     hibernateJpaVendorAdapter.setDatabasePlatform(
-            environment.getProperty("app.datasource.biz.dialect"));
+      environment.getProperty("app.datasource.biz.dialect"));
     return hibernateJpaVendorAdapter;
   }
 
@@ -122,9 +122,9 @@ public class Biz {
   public JpaTransactionManager bizTransactionManager() {
 
     JpaTransactionManager transactionManager
-            = new JpaTransactionManager();
+      = new JpaTransactionManager();
     transactionManager.setEntityManagerFactory(
-            bizEntityManager().getObject());
+      bizEntityManager().getObject());
     return transactionManager;
   }
 

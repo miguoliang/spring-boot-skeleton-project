@@ -38,36 +38,36 @@ public class PostLaunchService {
   public void removeUnusedJobInstances() {
     // delete all job instances that are not running
     jobRepository.getJobNames().forEach(
-        jobName -> jobExplorer.getJobInstances(jobName, 0, Integer.MAX_VALUE)
-            .forEach(jobInstance -> {
-                  final var isRunning = jobExplorer.getJobExecutions(jobInstance).stream()
-                      .anyMatch(JobExecution::isRunning);
-                  if (!isRunning) {
-                    log.info("删除 JobInstance {}-{}", jobInstance.getJobName(),
-                        jobInstance.getInstanceId());
-                    deleteJobExecutions(jobInstance);
-                    return;
-                  }
-                  log.info("JobInstance {}-{} 正在执行，不可删除！", jobInstance.getJobName(),
-                      jobInstance.getInstanceId());
-                }
-            ));
+      jobName -> jobExplorer.getJobInstances(jobName, 0, Integer.MAX_VALUE)
+        .forEach(jobInstance -> {
+            final var isRunning = jobExplorer.getJobExecutions(jobInstance).stream()
+              .anyMatch(JobExecution::isRunning);
+            if (!isRunning) {
+              log.info("删除 JobInstance {}-{}", jobInstance.getJobName(),
+                jobInstance.getInstanceId());
+              deleteJobExecutions(jobInstance);
+              return;
+            }
+            log.info("JobInstance {}-{} 正在执行，不可删除！", jobInstance.getJobName(),
+              jobInstance.getInstanceId());
+          }
+        ));
   }
 
   private void deleteJobExecutions(JobInstance jobInstance) {
 
     jobExplorer.getJobExecutions(jobInstance).stream()
-        .filter(jobExecution -> !jobExecution.isRunning())
-        .forEach(jobExecution -> {
-          jobExecution.getStepExecutions().forEach(stepExecution -> {
-            log.info("删除 StepExecution {}-{}", stepExecution.getStepName(),
-                stepExecution.getId());
-            jobRepository.deleteStepExecution(stepExecution);
-          });
-          log.info("删除 JobExecution {}-{}", jobExecution.getJobInstance().getJobName(),
-              jobExecution.getId());
-          jobRepository.deleteJobExecution(jobExecution);
+      .filter(jobExecution -> !jobExecution.isRunning())
+      .forEach(jobExecution -> {
+        jobExecution.getStepExecutions().forEach(stepExecution -> {
+          log.info("删除 StepExecution {}-{}", stepExecution.getStepName(),
+            stepExecution.getId());
+          jobRepository.deleteStepExecution(stepExecution);
         });
+        log.info("删除 JobExecution {}-{}", jobExecution.getJobInstance().getJobName(),
+          jobExecution.getId());
+        jobRepository.deleteJobExecution(jobExecution);
+      });
   }
 
   public void abortRunningJobs() {

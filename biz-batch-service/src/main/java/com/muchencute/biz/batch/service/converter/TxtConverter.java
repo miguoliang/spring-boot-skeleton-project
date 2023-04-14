@@ -18,9 +18,9 @@ public class TxtConverter {
   public static String str2html(String str) {
 
     return StrUtil.split(str, "\n")
-        .stream()
-        .map(it -> "<p>" + it + "</p>")
-        .reduce((a, b) -> a + b)
-        .orElse("");
+      .stream()
+      .map(it -> "<p>" + it + "</p>")
+      .reduce((a, b) -> a + b)
+      .orElse("");
   }
 }

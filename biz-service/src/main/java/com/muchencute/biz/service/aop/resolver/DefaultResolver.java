@@ -2,8 +2,8 @@ package com.muchencute.biz.service.aop.resolver;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.muchencute.biz.service.aop.bizlogger.BizLoggerAspect;
 import com.muchencute.biz.keycloak.helper.JwtHelper;
+import com.muchencute.biz.service.aop.bizlogger.BizLoggerAspect;
 import lombok.SneakyThrows;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -25,7 +25,7 @@ public class DefaultResolver implements Resolver {
     final var path = StrUtil.subAfter(beanPath, ".", true);
     final var request = BizLoggerAspect.getRequest();
     final var attributes = (Map<?, ?>) request.getAttribute(
-            HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+      HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
     return attributes.get(path);
   }
 
@@ -57,7 +57,7 @@ public class DefaultResolver implements Resolver {
     final var request = BizLoggerAspect.getRequest();
     final var values = request.getParameterValues(param);
     return values == null ? ""
-            : StrUtil.join(",", Arrays.asList(request.getParameterValues(param)));
+      : StrUtil.join(",", Arrays.asList(request.getParameterValues(param)));
   }
 
   @SneakyThrows
@@ -74,7 +74,7 @@ public class DefaultResolver implements Resolver {
 
   @Override
   public Object getProperty(ProceedingJoinPoint joinPoint, Object proceed, String beanPath)
-          throws Exception {
+    throws Exception {
 
     if (beanPath.startsWith("response.")) {
       final var path = StrUtil.subAfter(beanPath, ".", true);

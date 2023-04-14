@@ -43,8 +43,8 @@ public class FavoriteController {
 
     final var username = JwtHelper.getUsername();
     return favoriteService.exists(username, targetId, targetType)
-            ? ResponseEntity.ok().build()
-            : ResponseEntity.notFound().build();
+      ? ResponseEntity.ok().build()
+      : ResponseEntity.notFound().build();
   }
 
   @Operation(summary = "用户收藏列表查询")
@@ -52,19 +52,19 @@ public class FavoriteController {
   @PreAuthorize("isAuthenticated()")
   @SneakyThrows
   public Page<Favorite> getFavorites(
-          @RequestParam(required = false, name = "type", defaultValue = "") Set<String> types,
-          @RequestParam(defaultValue = "false") boolean withLog,
-          Pageable pageable) {
+    @RequestParam(required = false, name = "type", defaultValue = "") Set<String> types,
+    @RequestParam(defaultValue = "false") boolean withLog,
+    Pageable pageable) {
 
     final var page = favoriteService.getFavorites(JwtHelper.getUsername(), types, pageable);
     page.getContent().forEach(favorite -> {
       if (withLog) {
         bizLogRepository.findFirstByTarget_TargetIdAndTarget_TargetTypeOrderByIDDesc(
-                        favorite.getTarget().getTargetId(), favorite.getTarget().getTargetType())
-                .ifPresent(bizLog -> {
-                  favorite.setLogContent(bizLog.getContent());
-                  favorite.setLogCreatedAt(bizLog.getCreatedAt());
-                });
+            favorite.getTarget().getTargetId(), favorite.getTarget().getTargetType())
+          .ifPresent(bizLog -> {
+            favorite.setLogContent(bizLog.getContent());
+            favorite.setLogCreatedAt(bizLog.getCreatedAt());
+          });
       }
     });
     return page;
@@ -87,6 +87,6 @@ public class FavoriteController {
   public void deleteFavorite(@RequestParam String targetId, @RequestParam String targetType) {
 
     favoriteService.getFavorite(JwtHelper.getUsername(), targetId, targetType)
-            .ifPresent(favoriteService::deleteFavorite);
+      .ifPresent(favoriteService::deleteFavorite);
   }
 }

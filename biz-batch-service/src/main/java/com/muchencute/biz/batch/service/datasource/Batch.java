@@ -24,9 +24,9 @@ public class Batch {
   public DataSource dataSource(DataSourceProperties batchDataSourceProperties) {
 
     return batchDataSourceProperties
-            .initializeDataSourceBuilder()
-            .type(HikariDataSource.class)
-            .build();
+      .initializeDataSourceBuilder()
+      .type(HikariDataSource.class)
+      .build();
   }
 
   @Bean

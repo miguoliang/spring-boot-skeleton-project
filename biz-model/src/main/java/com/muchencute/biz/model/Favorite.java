@@ -17,10 +17,10 @@ import java.util.Objects;
 @Entity
 @Builder
 @Table(indexes = {
-    @Index(columnList = "username"),
-    @Index(columnList = "targetId, targetType")
+  @Index(columnList = "username"),
+  @Index(columnList = "targetId, targetType")
 }, uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"username", "targetId", "targetType"})
+  @UniqueConstraint(columnNames = {"username", "targetId", "targetType"})
 })
 public class Favorite {
 

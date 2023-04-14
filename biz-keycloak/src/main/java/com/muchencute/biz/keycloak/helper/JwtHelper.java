@@ -42,13 +42,13 @@ public final class JwtHelper {
     } else if (authentication instanceof UsernamePasswordAuthenticationToken up) {
       // 单元测试/集成测试会用到这个逻辑分支，因为 WithMockUser 只支持用户名密码 Token
       return Jwt.withTokenValue("token")
-              .header("alg", JwsAlgorithms.RS256)
-              .claim("name", up.getName())
-              .claim("preferred_username", up.getName())
-              .claim("scope", StrUtil.join(" ",
-                      up.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList()))
-              .claim("sub", up.getName())
-              .build();
+        .header("alg", JwsAlgorithms.RS256)
+        .claim("name", up.getName())
+        .claim("preferred_username", up.getName())
+        .claim("scope", StrUtil.join(" ",
+          up.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList()))
+        .claim("sub", up.getName())
+        .build();
     }
     throw new Exception("未知的 Token 类型");
   }

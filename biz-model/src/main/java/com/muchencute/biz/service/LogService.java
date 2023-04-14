@@ -30,41 +30,41 @@ public class LogService {
   private static Specification<BizLog> contentOrModelOrUserRoleLike(String keyword) {
 
     return (root, query, criteriaBuilder) ->
-            StrUtil.isBlank(keyword) ?
-                    criteriaBuilder.and() :
-                    criteriaBuilder.or(
-                            criteriaBuilder.like(root.get(BizLog_.CONTENT), "%" + keyword + "%"),
-                            criteriaBuilder.and(
-                                    criteriaBuilder.like(root.get(BizLog_.MODULE), "%" + keyword + "%")
-                            ),
-                            criteriaBuilder.and(
-                                    criteriaBuilder.like(root.get(BizLog_.USER_ROLE), "%" + keyword + "%")
-                            )
-                    );
+      StrUtil.isBlank(keyword) ?
+        criteriaBuilder.and() :
+        criteriaBuilder.or(
+          criteriaBuilder.like(root.get(BizLog_.CONTENT), "%" + keyword + "%"),
+          criteriaBuilder.and(
+            criteriaBuilder.like(root.get(BizLog_.MODULE), "%" + keyword + "%")
+          ),
+          criteriaBuilder.and(
+            criteriaBuilder.like(root.get(BizLog_.USER_ROLE), "%" + keyword + "%")
+          )
+        );
   }
 
   private static Specification<BizLog> typeEqual(String type) {
 
     return (root, query, criteriaBuilder) ->
-            StrUtil.isNotBlank(type) ?
-                    criteriaBuilder.equal(root.get(BizLog_.TYPE), type) :
-                    criteriaBuilder.and();
+      StrUtil.isNotBlank(type) ?
+        criteriaBuilder.equal(root.get(BizLog_.TYPE), type) :
+        criteriaBuilder.and();
   }
 
   private static Specification<BizLog> ipEqual(String ip) {
 
     return (root, query, criteriaBuilder) ->
-            StrUtil.isNotBlank(ip) ?
-                    criteriaBuilder.equal(root.get(BizLog_.IP), ip) :
-                    criteriaBuilder.and();
+      StrUtil.isNotBlank(ip) ?
+        criteriaBuilder.equal(root.get(BizLog_.IP), ip) :
+        criteriaBuilder.and();
   }
 
   private static Specification<BizLog> usernameEqual(String username) {
 
     return (root, query, criteriaBuilder) ->
-            StrUtil.isNotBlank(username) ?
-                    criteriaBuilder.equal(root.get(BizLog_.USERNAME), username) :
-                    criteriaBuilder.and();
+      StrUtil.isNotBlank(username) ?
+        criteriaBuilder.equal(root.get(BizLog_.USERNAME), username) :
+        criteriaBuilder.and();
   }
 
   private static Specification<BizLog> betweenDate(Calendar fromDate, Calendar toDate) {
@@ -85,20 +85,20 @@ public class LogService {
   private static Specification<BizLog> moduleIs(String module) {
 
     return (root, query, criteriaBuilder) ->
-            StrUtil.isNotBlank(module) ? criteriaBuilder.equal(root.get(BizLog_.MODULE), module)
-                    : criteriaBuilder.and();
+      StrUtil.isNotBlank(module) ? criteriaBuilder.equal(root.get(BizLog_.MODULE), module)
+        : criteriaBuilder.and();
   }
 
   public Page<BizLog> getLogs(String q, Calendar fromDate, Calendar toDate, String type,
                               String ip, String username, String module, Pageable pageable) {
 
     return bizLogRepository.findAll(
-            Specification
-                    .where(contentOrModelOrUserRoleLike(q))
-                    .and(betweenDate(fromDate, toDate))
-                    .and(typeEqual(type))
-                    .and(ipEqual(ip))
-                    .and(moduleIs(module))
-                    .and(usernameEqual(username)), pageable);
+      Specification
+        .where(contentOrModelOrUserRoleLike(q))
+        .and(betweenDate(fromDate, toDate))
+        .and(typeEqual(type))
+        .and(ipEqual(ip))
+        .and(moduleIs(module))
+        .and(usernameEqual(username)), pageable);
   }
 }

@@ -66,7 +66,7 @@ public class HSSFHtmlHelper implements HtmlHelper {
     } else {
       short[] rgb = color.getTriplet();
       out.format("  %s: #%02x%02x%02x; /* index = %d */%n", attr, rgb[0],
-          rgb[1], rgb[2], index);
+        rgb[1], rgb[2], index);
     }
   }
 }

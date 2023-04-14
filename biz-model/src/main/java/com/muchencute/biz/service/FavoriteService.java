@@ -41,20 +41,20 @@ public class FavoriteService {
   public Page<Favorite> getFavorites(String username, Set<String> targetTypes, Pageable pageable) {
 
     return CollUtil.isEmpty(targetTypes)
-            ? favoriteRepository.findByUsername(username, pageable)
-            : favoriteRepository.findByUsernameAndTarget_TargetTypeIn(username, targetTypes, pageable);
+      ? favoriteRepository.findByUsername(username, pageable)
+      : favoriteRepository.findByUsernameAndTarget_TargetTypeIn(username, targetTypes, pageable);
   }
 
   public Optional<Favorite> getFavorite(String username, String targetId, String targetType) {
 
     final var example = Example.of(
-            Favorite.builder()
-                    .username(username)
-                    .target(BizLogTarget.builder()
-                            .targetId(targetId)
-                            .targetType(targetType)
-                            .build())
-                    .build()
+      Favorite.builder()
+        .username(username)
+        .target(BizLogTarget.builder()
+          .targetId(targetId)
+          .targetType(targetType)
+          .build())
+        .build()
     );
     return favoriteRepository.findOne(example);
   }
@@ -62,6 +62,6 @@ public class FavoriteService {
   public boolean exists(String username, String targetId, String targetType) {
 
     return favoriteRepository.existsByUsernameAndTarget_TargetIdAndTarget_TargetType(
-            username, targetId, targetType);
+      username, targetId, targetType);
   }
 }

@@ -24,7 +24,7 @@ public class SwaggerConfig {
 
   @Autowired
   public SwaggerConfig(
-      @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri) {
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}") String jwkSetUri) {
 
     this.authServerUrl = StrUtil.subBefore(jwkSetUri, "/realms", true);
     this.realm = StrUtil.subBetween(jwkSetUri, "realms/", "/");
@@ -34,9 +34,9 @@ public class SwaggerConfig {
   public OpenAPI customOpenApi() {
 
     return new OpenAPI()
-        .components(new Components()
-            .addSecuritySchemes(OAUTH_SCHEME_NAME, createOAuthScheme()))
-        .addSecurityItem(new SecurityRequirement().addList(OAUTH_SCHEME_NAME));
+      .components(new Components()
+        .addSecuritySchemes(OAUTH_SCHEME_NAME, createOAuthScheme()))
+      .addSecurityItem(new SecurityRequirement().addList(OAUTH_SCHEME_NAME));
   }
 
   private SecurityScheme createOAuthScheme() {
@@ -44,8 +44,8 @@ public class SwaggerConfig {
     OAuthFlows flows = createOAuthFlows();
 
     return new SecurityScheme()
-        .type(SecurityScheme.Type.OAUTH2)
-        .flows(flows);
+      .type(SecurityScheme.Type.OAUTH2)
+      .flows(flows);
   }
 
   private OAuthFlows createOAuthFlows() {
@@ -53,7 +53,7 @@ public class SwaggerConfig {
     OAuthFlow flow = createAuthorizationCodeFlow();
 
     return new OAuthFlows()
-        .authorizationCode(flow);
+      .authorizationCode(flow);
   }
 
   private OAuthFlow createAuthorizationCodeFlow() {
@@ -61,8 +61,8 @@ public class SwaggerConfig {
     final var protocolUrl = String.format(PROTOCOL_URL_FORMAT, authServerUrl, realm);
 
     return new OAuthFlow()
-        .authorizationUrl(protocolUrl + "/auth")
-        .tokenUrl(protocolUrl + "/token")
-        .scopes(new Scopes().addString("openid", ""));
+      .authorizationUrl(protocolUrl + "/auth")
+      .tokenUrl(protocolUrl + "/token")
+      .scopes(new Scopes().addString("openid", ""));
   }
 }

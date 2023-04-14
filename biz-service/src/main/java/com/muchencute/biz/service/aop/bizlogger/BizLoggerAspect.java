@@ -60,7 +60,7 @@ public class BizLoggerAspect {
   public static HttpServletRequest getRequest() {
 
     return ((ServletRequestAttributes) Objects.requireNonNull(
-            RequestContextHolder.getRequestAttributes())).getRequest();
+      RequestContextHolder.getRequestAttributes())).getRequest();
   }
 
   private ArrayList<String> resolveValuesNotResponse(ProceedingJoinPoint joinPoint,
@@ -70,7 +70,7 @@ public class BizLoggerAspect {
     Arrays.stream(resolves).forEachOrdered(resolve -> {
       final var beanPath = resolve.value();
       contentValues.add(beanPath.startsWith("response") ? "" :
-              getValueFromResolve(joinPoint, resolve));
+        getValueFromResolve(joinPoint, resolve));
     });
     return contentValues;
   }
@@ -112,9 +112,9 @@ public class BizLoggerAspect {
     final var type = bizLogger.type();
     final var contentFormat = bizLogger.contentFormat();
     final var contentResolves = resolveValuesNotResponse(joinPoint,
-            bizLogger.contentFormatArguments());
+      bizLogger.contentFormatArguments());
     final var targetResolves = resolveValuesNotResponse(joinPoint, bizLogger.targetId(),
-            bizLogger.targetName(), bizLogger.targetType());
+      bizLogger.targetName(), bizLogger.targetType());
 
     final var bizLog = new BizLog();
     final var username = JwtHelper.getUsername();
@@ -128,27 +128,27 @@ public class BizLoggerAspect {
 
     // 执行后
     resolveValuesNeedResponse(joinPoint, proceed, bizLogger.contentFormatArguments(),
-            contentResolves);
+      contentResolves);
     resolveValuesNeedResponse(joinPoint, proceed, new Resolve[]{bizLogger.targetId(),
-            bizLogger.targetName(), bizLogger.targetType()}, targetResolves);
+      bizLogger.targetName(), bizLogger.targetType()}, targetResolves);
     bizLog.setContent(String.format(contentFormat, contentResolves.toArray()));
 
     try {
       bizLog.setTarget(BizLogTarget.builder()
-              .targetId(targetResolves.get(0))
-              .targetName(targetResolves.get(1))
-              .targetType(targetResolves.get(2))
-              .build());
+        .targetId(targetResolves.get(0))
+        .targetName(targetResolves.get(1))
+        .targetType(targetResolves.get(2))
+        .build());
 
       // 因为所包裹的执行是否在事务中，在哪个事务中并不确定，并且 findAll 需要在事务中执行才能解决 lazy load 的问题
       // 所以，此处手工指定 findAll 在事务中执行。
       new TransactionTemplate(keycloakTransactionManager).executeWithoutResult(transactionStatus ->
-              userEntityRepository.findByUsernameAndRealmId(username, keycloakService.getRealm())
-                      .flatMap(userEntity -> userEntity.getRoles()
-                              .stream()
-                              .filter(KeycloakRole::getClientRole)
-                              .findFirst())
-                      .ifPresent(keycloakRole -> bizLog.setUserRole(keycloakRole.getName())));
+        userEntityRepository.findByUsernameAndRealmId(username, keycloakService.getRealm())
+          .flatMap(userEntity -> userEntity.getRoles()
+            .stream()
+            .filter(KeycloakRole::getClientRole)
+            .findFirst())
+          .ifPresent(keycloakRole -> bizLog.setUserRole(keycloakRole.getName())));
 
       bizLogRepository.save(bizLog);
     } catch (Exception e) {

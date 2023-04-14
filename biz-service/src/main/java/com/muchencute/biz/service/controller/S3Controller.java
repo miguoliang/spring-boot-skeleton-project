@@ -47,7 +47,7 @@ public class S3Controller {
   private final MinioService minioService;
 
   private final Pattern objectNamePattern = Pattern.compile(
-          "^/[^/]+/(?<path>[^/]+)/(?<date>[^/]+)/(?<name>[^/]+)$");
+    "^/[^/]+/(?<path>[^/]+)/(?<date>[^/]+)/(?<name>[^/]+)$");
 
   @Autowired
   public S3Controller(MinioService minioService) {
@@ -67,8 +67,8 @@ public class S3Controller {
     authorize(path);
 
     final var legalHeaders = headers.entrySet().stream()
-            .filter(it -> it.getKey().startsWith("x-amz-meta-"))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      .filter(it -> it.getKey().startsWith("x-amz-meta-"))
+      .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     final var response = ResponseEntity.ok();
 
@@ -103,14 +103,14 @@ public class S3Controller {
     authorize(path);
 
     return minioService.getPreSignedURL(
-            String.format("%s/%s/%s", path, date, filename));
+      String.format("%s/%s/%s", path, date, filename));
   }
 
   @SneakyThrows
   private void authorize(String path) {
 
     if (!LEGAL_DIRECTORIES.containsKey(path) ||
-            CollUtil.intersection(JwtHelper.getScopes(), LEGAL_DIRECTORIES.get(path)).isEmpty()) {
+      CollUtil.intersection(JwtHelper.getScopes(), LEGAL_DIRECTORIES.get(path)).isEmpty()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "权限不足！");
     }
   }

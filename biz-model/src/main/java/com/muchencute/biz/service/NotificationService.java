@@ -29,8 +29,8 @@ public class NotificationService {
   private static Specification<Notification> byUserId(String userId) {
 
     return (root, query, criteriaBuilder) -> criteriaBuilder.or(
-            criteriaBuilder.isNull(root.get(Notification_.USER_ID)),
-            criteriaBuilder.equal(root.get(Notification_.USER_ID), userId)
+      criteriaBuilder.isNull(root.get(Notification_.USER_ID)),
+      criteriaBuilder.equal(root.get(Notification_.USER_ID), userId)
     );
   }
 
@@ -40,10 +40,10 @@ public class NotificationService {
       final var subQuery = query.subquery(NotificationRead.class);
       final var subQueryRoot = subQuery.from(NotificationRead.class);
       subQuery.select(subQueryRoot)
-              .where(criteriaBuilder.and(
-                      criteriaBuilder.equal(root, subQueryRoot.get(NotificationRead_.NOTIFICATION)),
-                      criteriaBuilder.equal(subQueryRoot.get(NotificationRead_.USER_ID), userId)
-              ));
+        .where(criteriaBuilder.and(
+          criteriaBuilder.equal(root, subQueryRoot.get(NotificationRead_.NOTIFICATION)),
+          criteriaBuilder.equal(subQueryRoot.get(NotificationRead_.USER_ID), userId)
+        ));
       return criteriaBuilder.not(criteriaBuilder.exists(subQuery));
     };
   }
@@ -51,12 +51,12 @@ public class NotificationService {
   public void createUserNotification(String userId, String title, String content) {
 
     notificationRepository.save(
-            Notification
-                    .builder()
-                    .title(title)
-                    .userId(userId)
-                    .content(content)
-                    .build()
+      Notification
+        .builder()
+        .title(title)
+        .userId(userId)
+        .content(content)
+        .build()
     );
   }
 
@@ -64,20 +64,20 @@ public class NotificationService {
                                              Pageable pageable) {
 
     final var specification = unreadOnly ?
-            Specification.where(byUserId(userId)).and(hasBeenReadByUserId(userId)) :
-            Specification.where(byUserId(userId));
+      Specification.where(byUserId(userId)).and(hasBeenReadByUserId(userId)) :
+      Specification.where(byUserId(userId));
     final var page = notificationRepository.findAll(specification, pageable);
     page.getContent().forEach(it -> it.setRead(it.getReads().stream()
-            .anyMatch(notificationRead -> userId.equals(notificationRead.getUserId()))));
+      .anyMatch(notificationRead -> userId.equals(notificationRead.getUserId()))));
     return page;
   }
 
   public void markAllAsRead(String userId) {
 
     final var notifications = notificationRepository.findAll(
-            Specification.where(byUserId(userId)).and(hasBeenReadByUserId(userId)));
+      Specification.where(byUserId(userId)).and(hasBeenReadByUserId(userId)));
     notifications.forEach(notification -> notification.getReads()
-            .add(NotificationRead.builder().userId(userId).notification(notification).build()));
+      .add(NotificationRead.builder().userId(userId).notification(notification).build()));
     notificationRepository.saveAll(notifications);
   }
 }

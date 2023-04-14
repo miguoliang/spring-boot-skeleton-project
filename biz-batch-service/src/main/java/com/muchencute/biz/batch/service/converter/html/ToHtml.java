@@ -43,33 +43,33 @@ public final class ToHtml {
   private static final String ROW_HEAD_CLASS = "rowHeader";
 
   private static final Map<HorizontalAlignment, String> HALIGN = mapFor(
-      HorizontalAlignment.LEFT, "left",
-      HorizontalAlignment.CENTER, "center",
-      HorizontalAlignment.RIGHT, "right",
-      HorizontalAlignment.FILL, "left",
-      HorizontalAlignment.JUSTIFY, "left",
-      HorizontalAlignment.CENTER_SELECTION, "center");
+    HorizontalAlignment.LEFT, "left",
+    HorizontalAlignment.CENTER, "center",
+    HorizontalAlignment.RIGHT, "right",
+    HorizontalAlignment.FILL, "left",
+    HorizontalAlignment.JUSTIFY, "left",
+    HorizontalAlignment.CENTER_SELECTION, "center");
 
   private static final Map<VerticalAlignment, String> VALIGN = mapFor(
-      VerticalAlignment.BOTTOM, "bottom",
-      VerticalAlignment.CENTER, "middle",
-      VerticalAlignment.TOP, "top");
+    VerticalAlignment.BOTTOM, "bottom",
+    VerticalAlignment.CENTER, "middle",
+    VerticalAlignment.TOP, "top");
 
   private static final Map<BorderStyle, String> BORDER = mapFor(
-      BorderStyle.DASH_DOT, "dashed 1pt",
-      BorderStyle.DASH_DOT_DOT, "dashed 1pt",
-      BorderStyle.DASHED, "dashed 1pt",
-      BorderStyle.DOTTED, "dotted 1pt",
-      BorderStyle.DOUBLE, "double 3pt",
-      BorderStyle.HAIR, "solid 1px",
-      BorderStyle.MEDIUM, "solid 2pt",
-      BorderStyle.MEDIUM_DASH_DOT, "dashed 2pt",
-      BorderStyle.MEDIUM_DASH_DOT_DOT, "dashed 2pt",
-      BorderStyle.MEDIUM_DASHED, "dashed 2pt",
-      BorderStyle.NONE, "none",
-      BorderStyle.SLANTED_DASH_DOT, "dashed 2pt",
-      BorderStyle.THICK, "solid 3pt",
-      BorderStyle.THIN, "dashed 1pt");
+    BorderStyle.DASH_DOT, "dashed 1pt",
+    BorderStyle.DASH_DOT_DOT, "dashed 1pt",
+    BorderStyle.DASHED, "dashed 1pt",
+    BorderStyle.DOTTED, "dotted 1pt",
+    BorderStyle.DOUBLE, "double 3pt",
+    BorderStyle.HAIR, "solid 1px",
+    BorderStyle.MEDIUM, "solid 2pt",
+    BorderStyle.MEDIUM_DASH_DOT, "dashed 2pt",
+    BorderStyle.MEDIUM_DASH_DOT_DOT, "dashed 2pt",
+    BorderStyle.MEDIUM_DASHED, "dashed 2pt",
+    BorderStyle.NONE, "none",
+    BorderStyle.SLANTED_DASH_DOT, "dashed 2pt",
+    BorderStyle.THICK, "solid 3pt",
+    BorderStyle.THIN, "dashed 1pt");
 
   private static final int IDX_TABLE_WIDTH = -2;
 
@@ -135,7 +135,7 @@ public final class ToHtml {
    * @return An object for converting the workbook to HTML.
    */
   public static ToHtml create(String path, Appendable output)
-      throws IOException {
+    throws IOException {
 
     return create(new FileInputStream(path), output);
   }
@@ -150,7 +150,7 @@ public final class ToHtml {
    * @return An object for converting the workbook to HTML.
    */
   public static ToHtml create(InputStream in, Appendable output)
-      throws IOException {
+    throws IOException {
 
     Workbook wb = WorkbookFactory.create(in);
     return create(wb, output);
@@ -173,7 +173,7 @@ public final class ToHtml {
       helper = new XSSFHtmlHelper();
     } else {
       throw new IllegalArgumentException(
-          "unknown workbook type: " + wb.getClass().getSimpleName());
+        "unknown workbook type: " + wb.getClass().getSimpleName());
     }
   }
 
@@ -188,7 +188,7 @@ public final class ToHtml {
       ensureOut();
       if (completeHTML) {
         out.format(
-            "<?xml version=\"1.0\" encoding=\"utf-8\" ?>%n");
+          "<?xml version=\"1.0\" encoding=\"utf-8\" ?>%n");
         out.format("<html>%n");
         out.format("<head>%n");
         out.format("</head>%n");
@@ -235,8 +235,8 @@ public final class ToHtml {
 
     // First, copy the base css
     try (BufferedReader in = new BufferedReader(new InputStreamReader(
-        Objects.requireNonNull(ResourceUtil.getStream("excelStyle.css")),
-        StandardCharsets.UTF_8))) {
+      Objects.requireNonNull(ResourceUtil.getStream("excelStyle.css")),
+      StandardCharsets.UTF_8))) {
       String line;
       while ((line = in.readLine()) != null) {
         out.format("%s%n", line);
@@ -451,7 +451,7 @@ public final class ToHtml {
 
       out.format("  <tr>%n");
       out.format("    <td class=%s>%d</td>%n", ROW_HEAD_CLASS,
-          row.getRowNum() + 1);
+        row.getRowNum() + 1);
       for (int i = firstColumn; i < endColumn; i++) {
         String content = "&nbsp;";
         String attrs = "";
@@ -464,7 +464,7 @@ public final class ToHtml {
             //Set the value that is rendered for the cell
             //also applies the format
             CellFormat cf = CellFormat.getInstance(
-                style.getDataFormatString());
+              style.getDataFormatString());
             CellFormatResult result = cf.apply(cell);
             content = result.text; //never null
             if (content.isEmpty()) {
@@ -473,7 +473,7 @@ public final class ToHtml {
           }
         }
         out.format("    <td class=%s %s>%s</td>%n", styleName(style),
-            attrs, content);
+          attrs, content);
       }
       out.format("  </tr>%n");
     }

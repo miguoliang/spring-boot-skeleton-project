@@ -16,10 +16,10 @@ public class ValidatorConfig {
   public Validator validator(final AutowireCapableBeanFactory autowireCapableBeanFactory) {
 
     @Cleanup final var validatorFactory = Validation.byProvider(HibernateValidator.class)
-            .configure()
-            .constraintValidatorFactory(
-                    new SpringConstraintValidatorFactory(autowireCapableBeanFactory))
-            .buildValidatorFactory();
+      .configure()
+      .constraintValidatorFactory(
+        new SpringConstraintValidatorFactory(autowireCapableBeanFactory))
+      .buildValidatorFactory();
 
     return validatorFactory.getValidator();
   }

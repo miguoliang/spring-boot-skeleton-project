@@ -41,18 +41,18 @@ public class MsWordConverter {
     final var newDocument = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     final var wordToHtmlConverter = new WordToHtmlConverter(newDocument);
     wordToHtmlConverter.setPicturesManager(
-            (content, pictureType, suggestedName, widthInches, heightInches) ->
-                    pictureManager.picture(content, pictureType.getMime(), pictureType.getExtension()));
+      (content, pictureType, suggestedName, widthInches, heightInches) ->
+        pictureManager.picture(content, pictureType.getMime(), pictureType.getExtension()));
     wordToHtmlConverter.processDocument(document);
     final var stringWriter = new StringWriter();
     final var transformer = TransformerFactory.newInstance()
-            .newTransformer();
+      .newTransformer();
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
     transformer.setOutputProperty(OutputKeys.METHOD, "html");
     transformer.transform(
-            new DOMSource(wordToHtmlConverter.getDocument()),
-            new StreamResult(stringWriter));
+      new DOMSource(wordToHtmlConverter.getDocument()),
+      new StreamResult(stringWriter));
     return stringWriter.toString();
   }
 
@@ -68,11 +68,11 @@ public class MsWordConverter {
     htmlSettings.setImageHandler((abstractWordXmlPicture, relationship, binaryPart) -> {
       final var pictureType = PictureType.findMatchingType(binaryPart.getBytes());
       return pictureManager.picture(binaryPart.getBytes(), pictureType.getMime(),
-              pictureType.getExtension());
+        pictureType.getExtension());
     });
     Docx4J.toHTML(htmlSettings, outputStream, Docx4J.FLAG_EXPORT_PREFER_XSL);
     return StrUtil.join("",
-            FileUtil.readLines(tempFilename.getAbsolutePath(), StandardCharsets.UTF_8));
+      FileUtil.readLines(tempFilename.getAbsolutePath(), StandardCharsets.UTF_8));
   }
 
   @SneakyThrows

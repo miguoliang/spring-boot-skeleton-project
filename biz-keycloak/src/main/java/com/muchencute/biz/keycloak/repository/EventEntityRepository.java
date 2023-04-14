@@ -17,10 +17,10 @@ public interface EventEntityRepository extends JpaRepository<EventEntity, String
 
   @Transactional(readOnly = true)
   @Query("""
-          select e.ipAddress, count(e) as c from EventEntity e
-          where e.userId = :userId and e.type in ('LOGIN', 'LOGIN_ERROR')
-          group by e.ipAddress
-          order by c desc
-          """)
+    select e.ipAddress, count(e) as c from EventEntity e
+    where e.userId = :userId and e.type in ('LOGIN', 'LOGIN_ERROR')
+    group by e.ipAddress
+    order by c desc
+    """)
   List<Object[]> countByIpAddress(String userId);
 }

@@ -24,10 +24,10 @@ public class KeycloakRoleService {
   private Role getNewRoleResponse(RoleRepresentation roleRepresentation) {
 
     return Role.builder()
-            .id(roleRepresentation.getId())
-            .name(roleRepresentation.getName())
-            .scopes(keycloakService.getScopesByRole(roleRepresentation.getName()))
-            .build();
+      .id(roleRepresentation.getId())
+      .name(roleRepresentation.getName())
+      .scopes(keycloakService.getScopesByRole(roleRepresentation.getName()))
+      .build();
   }
 
   public Role newRole(NewRoleRequest request) {
@@ -49,16 +49,16 @@ public class KeycloakRoleService {
   public Role renameRole(String oldRoleName, String newRoleName) {
 
     final var newRoleRepresentation = keycloakService.newRoleResource(newRoleName)
-            .toRepresentation();
+      .toRepresentation();
     final var oldRoleRepresentation = keycloakService.getClientRoleResource(oldRoleName)
-            .toRepresentation();
+      .toRepresentation();
     keycloakService.getClientRoleResource(oldRoleName)
       .getUserMembers()
-            .forEach(it -> {
-              final var username = it.getUsername();
-              keycloakService.attachRoleResource(username, newRoleRepresentation);
-              keycloakService.detachRoleResource(username, oldRoleRepresentation);
-            });
+      .forEach(it -> {
+        final var username = it.getUsername();
+        keycloakService.attachRoleResource(username, newRoleRepresentation);
+        keycloakService.detachRoleResource(username, oldRoleRepresentation);
+      });
     final var scopes = keycloakService.getScopesByRole(oldRoleName);
     keycloakService.getClientResource().roles().deleteRole(oldRoleName);
     keycloakService.attachScopes(scopes, newRoleRepresentation);
@@ -68,27 +68,27 @@ public class KeycloakRoleService {
   public List<Role> getRoles() {
 
     return keycloakService
-            .getClientResource()
-            .roles()
-            .list()
-            .stream()
-            .map(it -> Role.builder()
-                    .id(it.getId())
-                    .name(it.getName())
-                    .scopes(keycloakService.getScopesByRole(it.getName()))
-                    .build())
-            .toList();
+      .getClientResource()
+      .roles()
+      .list()
+      .stream()
+      .map(it -> Role.builder()
+        .id(it.getId())
+        .name(it.getName())
+        .scopes(keycloakService.getScopesByRole(it.getName()))
+        .build())
+      .toList();
   }
 
   public Role getRole(String roleName) {
 
     final var roleRepresentation = keycloakService
-            .getClientRoleResource(roleName)
-            .toRepresentation();
+      .getClientRoleResource(roleName)
+      .toRepresentation();
     return Role.builder()
-            .id(roleRepresentation.getId())
-            .name(roleRepresentation.getName())
-            .scopes(keycloakService.getScopesByRole(roleName))
-            .build();
+      .id(roleRepresentation.getId())
+      .name(roleRepresentation.getName())
+      .scopes(keycloakService.getScopesByRole(roleName))
+      .build();
   }
 }

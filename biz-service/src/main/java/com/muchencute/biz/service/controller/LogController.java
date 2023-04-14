@@ -57,7 +57,7 @@ public class LogController {
     page.getContent().forEach(bizLog -> {
       if (withFavoriteFlag) {
         bizLog.setFavorite(favoriteService.exists(usernameInToken, bizLog.getTarget().getTargetId(),
-                bizLog.getTarget().getTargetType()));
+          bizLog.getTarget().getTargetType()));
       }
     });
     return page;

@@ -1,23 +1,11 @@
 package com.muchencute.biz.keycloak.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import java.util.Set;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.ToString.Exclude;
 import org.hibernate.annotations.Formula;
+
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -77,15 +65,15 @@ public class UserEntity {
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "USER_GROUP_MEMBERSHIP",
-      joinColumns = @JoinColumn(name = "USER_ID"),
-      inverseJoinColumns = @JoinColumn(name = "GROUP_ID"))
+    joinColumns = @JoinColumn(name = "USER_ID"),
+    inverseJoinColumns = @JoinColumn(name = "GROUP_ID"))
   @Exclude
   private Set<KeycloakGroup> groups;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "USER_ROLE_MAPPING",
-      joinColumns = @JoinColumn(name = "USER_ID"),
-      inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
+    joinColumns = @JoinColumn(name = "USER_ID"),
+    inverseJoinColumns = @JoinColumn(name = "ROLE_ID"))
   @Exclude
   private Set<KeycloakRole> roles;
 

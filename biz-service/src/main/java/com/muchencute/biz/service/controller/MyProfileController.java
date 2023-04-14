@@ -44,7 +44,7 @@ public class MyProfileController {
 
     final var username = JwtHelper.getUsername();
     keycloakUserService.resetUserCredential(username, request.getOriginalPassword(),
-            request.getPassword());
+      request.getPassword());
   }
 
   @PostMapping("notification:read")
@@ -60,7 +60,7 @@ public class MyProfileController {
   @PreAuthorize("isAuthenticated()")
   @SneakyThrows
   public Page<Notification> getNotifications(
-          @RequestParam(defaultValue = "false") Boolean unreadOnly, Pageable pageable) {
+    @RequestParam(defaultValue = "false") Boolean unreadOnly, Pageable pageable) {
 
     final var userId = JwtHelper.getUserId();
     return notificationService.getNotifications(userId, unreadOnly, pageable);

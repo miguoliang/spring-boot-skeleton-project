@@ -20,17 +20,17 @@ public class KeycloakClientService {
 
     final var total = keycloakService.getRealmResource().users().count();
     return keycloakService.getRealmResource().users().list(0, total)
-        .stream().filter(it -> !it.getUsername().startsWith("reserved_")).count();
+      .stream().filter(it -> !it.getUsername().startsWith("reserved_")).count();
   }
 
   public Long getOnlineUserNum() {
 
     return keycloakService.getRealmResource().getClientSessionStats()
-        .stream()
-        .filter(it -> it.containsValue(keycloakService.getClientId()))
-        .map(it -> Long.parseLong(it.getOrDefault("active", "0")))
-        .findFirst()
-        .orElse(0L);
+      .stream()
+      .filter(it -> it.containsValue(keycloakService.getClientId()))
+      .map(it -> Long.parseLong(it.getOrDefault("active", "0")))
+      .findFirst()
+      .orElse(0L);
   }
 
   public Long getOfflineUserNum() {

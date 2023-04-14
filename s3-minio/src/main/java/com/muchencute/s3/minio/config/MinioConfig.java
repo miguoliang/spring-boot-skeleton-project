@@ -27,8 +27,8 @@ public class MinioConfig {
   public MinioClient minioClient() {
 
     return MinioClient.builder()
-        .endpoint(endpoint)
-        .credentials(username, password)
-        .build();
+      .endpoint(endpoint)
+      .credentials(username, password)
+      .build();
   }
 }

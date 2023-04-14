@@ -44,6 +44,6 @@ public class XSSFHtmlHelper implements HtmlHelper {
       return;
     }
     out.format("  %s: rgba(0x%02x, 0x%02x, 0x%02x, 0x%02x);%n", attr,
-        argb[3], argb[0], argb[1], argb[2]);
+      argb[3], argb[0], argb[1], argb[2]);
   }
 }
