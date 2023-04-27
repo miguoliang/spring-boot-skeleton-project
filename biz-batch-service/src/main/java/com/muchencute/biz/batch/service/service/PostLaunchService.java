@@ -25,13 +25,12 @@ public class PostLaunchService {
   private final JobOperator jobOperator;
 
   @Autowired
-  public PostLaunchService(JobRepository jobRepository, JobExplorer jobExplorer,
+  public PostLaunchService(JobRepository jobRepository,
+                           JobExplorer jobExplorer,
                            JobOperator jobOperator) {
 
     this.jobRepository = jobRepository;
-
     this.jobExplorer = jobExplorer;
-
     this.jobOperator = jobOperator;
   }
 
@@ -46,6 +45,7 @@ public class PostLaunchService {
               log.info("删除 JobInstance {}-{}", jobInstance.getJobName(),
                 jobInstance.getInstanceId());
               deleteJobExecutions(jobInstance);
+              jobRepository.deleteJobInstance(jobInstance);
               return;
             }
             log.info("JobInstance {}-{} 正在执行，不可删除！", jobInstance.getJobName(),

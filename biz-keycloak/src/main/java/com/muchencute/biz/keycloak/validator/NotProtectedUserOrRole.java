@@ -18,6 +18,10 @@ public @interface NotProtectedUserOrRole {
 
   String message() default "不能对 admin 账号执行该操作！";
 
+  String beanNamePrefix() default "";
+
+  String propertyPrefix() default "keycloak";
+
   ResourceType resourceType();
 
   FieldType fieldType();

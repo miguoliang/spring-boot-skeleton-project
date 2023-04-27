@@ -1,6 +1,5 @@
 package com.muchencute.biz.keycloak.validator;
 
-import com.muchencute.biz.keycloak.config.KeycloakConfig;
 import com.muchencute.biz.keycloak.model.KeycloakRole;
 import com.muchencute.biz.keycloak.model.UserEntity;
 import com.muchencute.biz.keycloak.repository.KeycloakRoleRepository;
@@ -8,17 +7,14 @@ import com.muchencute.biz.keycloak.repository.UserEntityRepository;
 import com.muchencute.biz.keycloak.service.KeycloakService;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Profiles;
-import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component
 public class NotProtectedUserOrRoleValidator implements
   ConstraintValidator<NotProtectedUserOrRole, Object> {
 
@@ -29,30 +25,21 @@ public class NotProtectedUserOrRoleValidator implements
   private final Set<String> PROTECTED_ROLE_NAMES = new HashSet<>();
 
   private final Set<String> PROTECTED_ROLE_IDS = new HashSet<>();
-  private final KeycloakConfig keycloakConfig;
-  private final KeycloakService keycloakService;
-  private final UserEntityRepository userEntityRepository;
-  private final KeycloakRoleRepository keycloakRoleRepository;
-
   private final boolean containsTestProfile;
+  private final ApplicationContext applicationContext;
+  private KeycloakService keycloakService;
+  private UserEntityRepository userEntityRepository;
+  private KeycloakRoleRepository keycloakRoleRepository;
+  private Set<String> protectedRoleNames;
+  private Set<String> protectedUsernames;
   private NotProtectedUserOrRole.FieldType fieldType;
   private NotProtectedUserOrRole.ResourceType resourceType;
 
-  @Autowired
-  public NotProtectedUserOrRoleValidator(
-    KeycloakConfig keycloakConfig,
-    KeycloakService keycloakService,
-    UserEntityRepository userEntityRepository,
-    KeycloakRoleRepository keycloakRoleRepository, Environment environment) {
+  public NotProtectedUserOrRoleValidator(ApplicationContext applicationContext) {
 
-    this.keycloakConfig = keycloakConfig;
-    this.keycloakService = keycloakService;
-    this.userEntityRepository = userEntityRepository;
-    this.keycloakRoleRepository = keycloakRoleRepository;
-
-    containsTestProfile = environment.acceptsProfiles(Profiles.of("test"));
-
-    reloadProtectedUsersAndRoles();
+    final var environment = applicationContext.getEnvironment();
+    this.containsTestProfile = environment.acceptsProfiles(Profiles.of("test"));
+    this.applicationContext = applicationContext;
   }
 
   private void reloadProtectedUsersAndRoles() {
@@ -61,11 +48,11 @@ public class NotProtectedUserOrRoleValidator implements
     final var idOfClient = keycloakService.getIdOfClient();
 
     final var protectedUsers = userEntityRepository
-      .findAllByUsernameInAndRealmId(keycloakConfig.getProtectedUsernames(), idOfRealm);
+      .findAllByUsernameInAndRealmId(protectedUsernames, idOfRealm);
 
     final var protectedRoles = keycloakRoleRepository
       .findByNameInAndRealmIdAndClientAndClientRoleIsTrue(
-        keycloakConfig.getProtectedRoleNames(),
+        protectedRoleNames,
         idOfRealm,
         idOfClient);
 
@@ -84,8 +71,18 @@ public class NotProtectedUserOrRoleValidator implements
   public void initialize(NotProtectedUserOrRole constraintAnnotation) {
 
     ConstraintValidator.super.initialize(constraintAnnotation);
+    final var beanNamePrefix = constraintAnnotation.beanNamePrefix();
+    final var propertyPrefix = constraintAnnotation.propertyPrefix();
+    this.userEntityRepository = applicationContext.getBean(beanNamePrefix + "UserEntityRepository", UserEntityRepository.class);
+    this.keycloakRoleRepository = applicationContext.getBean(beanNamePrefix + "KeycloakRoleRepository", KeycloakRoleRepository.class);
+    this.keycloakService = applicationContext.getBean(beanNamePrefix + "KeycloakService", KeycloakService.class);
+    final var environment = applicationContext.getEnvironment();
+    this.protectedRoleNames = Set.of(environment.getProperty(propertyPrefix + ".protected-role-names", String[].class, new String[]{}));
+    this.protectedUsernames = Set.of(environment.getProperty(propertyPrefix + ".protected-usernames", String[].class, new String[]{}));
     fieldType = constraintAnnotation.fieldType();
     resourceType = constraintAnnotation.resourceType();
+
+    reloadProtectedUsersAndRoles();
   }
 
   @Override

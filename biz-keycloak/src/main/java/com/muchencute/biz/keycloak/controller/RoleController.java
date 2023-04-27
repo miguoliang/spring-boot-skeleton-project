@@ -8,7 +8,7 @@ import com.muchencute.biz.keycloak.service.KeycloakService;
 import com.muchencute.biz.keycloak.validator.NotProtectedUserOrRole;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -17,10 +17,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Set;
 
-@RestController
 @RequestMapping("role")
 @Validated
-@ConditionalOnProperty(name = "keycloak.use-endpoints", matchIfMissing = true)
+@Profile("test")
 public class RoleController {
 
   private final KeycloakRoleService roleService;

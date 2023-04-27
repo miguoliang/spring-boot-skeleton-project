@@ -3,16 +3,13 @@ package com.muchencute.biz.keycloak.repository;
 import com.muchencute.biz.keycloak.model.EventEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public interface EventEntityRepository extends JpaRepository<EventEntity, String> {
 
-  @Transactional(readOnly = true)
   Optional<EventEntity> findFirstByUserIdAndTypeIsOrderByEventTimeDesc(String userId, String type);
 
   @Transactional(readOnly = true)

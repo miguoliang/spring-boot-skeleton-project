@@ -20,7 +20,7 @@ import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -37,11 +37,11 @@ import java.util.Map;
 import java.util.Set;
 
 @Tag(name = "用户管理")
-@RestController
 @RequestMapping("user")
 @Slf4j
 @Validated
-@ConditionalOnProperty(name = "keycloak.use-endpoints", matchIfMissing = true)
+@Profile("test")
+@RestController
 public class UserController {
 
   private final KeycloakService keycloakService;
@@ -69,7 +69,6 @@ public class UserController {
   }
 
   @RequestMapping(method = RequestMethod.HEAD)
-  @Transactional("keycloakTransactionManager")
   public ResponseEntity<?> statUser(@RequestParam String username) {
 
     final var user = userEntityRepository.findByUsernameAndRealmId(username,

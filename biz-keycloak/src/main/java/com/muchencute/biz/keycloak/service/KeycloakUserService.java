@@ -15,15 +15,12 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,9 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
-@Transactional(transactionManager = "keycloakTransactionManager")
 public class KeycloakUserService {
   private final KeycloakRoleRepository keycloakRoleRepository;
   private final UserAttributeRepository userAttributeRepository;
@@ -49,7 +44,6 @@ public class KeycloakUserService {
 
   private final UserEntityRepository userEntityRepository;
 
-  @Autowired
   public KeycloakUserService(KeycloakService keycloakService,
                              UserEntityRepository userEntityRepository,
                              EventEntityRepository eventEntityRepository,

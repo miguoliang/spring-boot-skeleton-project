@@ -1,6 +1,5 @@
 package com.muchencute.biz.keycloak.validator;
 
-import com.muchencute.biz.keycloak.config.KeycloakConfig;
 import com.muchencute.biz.keycloak.model.KeycloakRole;
 import com.muchencute.biz.keycloak.model.UserEntity;
 import com.muchencute.biz.keycloak.repository.KeycloakRoleRepository;
@@ -10,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
 import java.util.Set;
@@ -23,12 +23,6 @@ public class NotProtectedUserOrRoleValidatorTest {
 
   @BeforeAll
   void setUp() {
-
-    final var keycloakConfig = Mockito.mock(KeycloakConfig.class);
-    Mockito.when(keycloakConfig.getRealm()).thenReturn("app");
-    Mockito.when(keycloakConfig.getClientId()).thenReturn("console-app");
-    Mockito.when(keycloakConfig.getProtectedUsernames()).thenReturn(Set.of("jack", "mary"));
-    Mockito.when(keycloakConfig.getProtectedRoleNames()).thenReturn(Set.of("admin", "super-admin"));
 
     final var keycloakService = Mockito.mock(KeycloakService.class);
     Mockito.when(keycloakService.getIdOfRealm()).thenReturn("1");
@@ -44,10 +38,19 @@ public class NotProtectedUserOrRoleValidatorTest {
 
     final var environment = Mockito.mock(Environment.class);
     Mockito.when(environment.getActiveProfiles()).thenReturn(new String[0]);
+    Mockito.when(environment.getProperty("keycloak.protected-usernames", String[].class, new String[]{}))
+      .thenReturn(new String[]{"jack", "mary"});
+    Mockito.when(environment.getProperty("keycloak.protected-role-names", String[].class, new String[]{}))
+      .thenReturn(new String[]{"admin", "super-admin"});
+
+    final var applicationContext = Mockito.mock(ApplicationContext.class);
+    Mockito.when(applicationContext.getBean("KeycloakService", KeycloakService.class)).thenReturn(keycloakService);
+    Mockito.when(applicationContext.getBean("UserEntityRepository", UserEntityRepository.class)).thenReturn(userEntityRepository);
+    Mockito.when(applicationContext.getBean("KeycloakRoleRepository", KeycloakRoleRepository.class)).thenReturn(keycloakRoleRepository);
+    Mockito.when(applicationContext.getEnvironment()).thenReturn(environment);
 
     // Force reset static fields
-    validator = new NotProtectedUserOrRoleValidator(keycloakConfig,
-      keycloakService, userEntityRepository, keycloakRoleRepository, environment);
+    validator = new NotProtectedUserOrRoleValidator(applicationContext);
   }
 
   @Test
@@ -56,6 +59,8 @@ public class NotProtectedUserOrRoleValidatorTest {
     final var annotation = Mockito.mock(NotProtectedUserOrRole.class);
     Mockito.when(annotation.fieldType()).thenReturn(NotProtectedUserOrRole.FieldType.NAME);
     Mockito.when(annotation.resourceType()).thenReturn(NotProtectedUserOrRole.ResourceType.USER);
+    Mockito.when(annotation.propertyPrefix()).thenReturn("keycloak");
+    Mockito.when(annotation.beanNamePrefix()).thenReturn("");
     validator.initialize(annotation);
     assertFalse(validator.isValid("jack", null));
   }
@@ -66,6 +71,8 @@ public class NotProtectedUserOrRoleValidatorTest {
     final var annotation = Mockito.mock(NotProtectedUserOrRole.class);
     Mockito.when(annotation.fieldType()).thenReturn(NotProtectedUserOrRole.FieldType.NAME);
     Mockito.when(annotation.resourceType()).thenReturn(NotProtectedUserOrRole.ResourceType.ROLE);
+    Mockito.when(annotation.propertyPrefix()).thenReturn("keycloak");
+    Mockito.when(annotation.beanNamePrefix()).thenReturn("");
     validator.initialize(annotation);
     assertFalse(validator.isValid("admin", null));
   }
@@ -76,6 +83,8 @@ public class NotProtectedUserOrRoleValidatorTest {
     final var annotation = Mockito.mock(NotProtectedUserOrRole.class);
     Mockito.when(annotation.fieldType()).thenReturn(NotProtectedUserOrRole.FieldType.ID);
     Mockito.when(annotation.resourceType()).thenReturn(NotProtectedUserOrRole.ResourceType.USER);
+    Mockito.when(annotation.propertyPrefix()).thenReturn("keycloak");
+    Mockito.when(annotation.beanNamePrefix()).thenReturn("");
     validator.initialize(annotation);
     assertFalse(validator.isValid("1", null));
   }
@@ -86,6 +95,8 @@ public class NotProtectedUserOrRoleValidatorTest {
     final var annotation = Mockito.mock(NotProtectedUserOrRole.class);
     Mockito.when(annotation.fieldType()).thenReturn(NotProtectedUserOrRole.FieldType.ID);
     Mockito.when(annotation.resourceType()).thenReturn(NotProtectedUserOrRole.ResourceType.ROLE);
+    Mockito.when(annotation.propertyPrefix()).thenReturn("keycloak");
+    Mockito.when(annotation.beanNamePrefix()).thenReturn("");
     validator.initialize(annotation);
     assertFalse(validator.isValid("3", null));
   }

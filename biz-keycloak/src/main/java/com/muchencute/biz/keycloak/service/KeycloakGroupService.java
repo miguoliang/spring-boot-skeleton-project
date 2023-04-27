@@ -4,13 +4,10 @@ import com.muchencute.biz.keycloak.model.Group;
 import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
 import jakarta.ws.rs.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 import java.util.List;
 
-@Service
 @Slf4j
 public class KeycloakGroupService {
 
@@ -18,7 +15,6 @@ public class KeycloakGroupService {
 
   private final KeycloakGroupRepository keycloakGroupRepository;
 
-  @Autowired
   public KeycloakGroupService(KeycloakService keycloakService,
                               KeycloakGroupRepository keycloakGroupRepository) {
 

@@ -3,6 +3,8 @@ server:
     context-path: /
 
 spring:
+  liquibase:
+    enabled: false
   jpa:
     show-sql: true
 

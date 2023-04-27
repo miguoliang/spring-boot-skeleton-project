@@ -1,9 +1,8 @@
 package com.muchencute.biz.keycloak.environment;
 
 import cn.hutool.core.util.StrUtil;
+import com.muchencute.biz.keycloak.EnableKeycloakIntegration;
 import com.muchencute.biz.keycloak.advisor.ControllerExceptionHandler;
-import com.muchencute.biz.keycloak.config.KeycloakConfig;
-import com.muchencute.biz.keycloak.datasource.Keycloak;
 import com.muchencute.biz.keycloak.environment.listener.MyTestExecutionListener;
 import com.muchencute.biz.keycloak.environment.service.KeycloakAccessTokenService;
 import com.muchencute.biz.keycloak.repository.KeycloakGroupRepository;
@@ -51,10 +50,8 @@ import org.testcontainers.utility.DockerImageName;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = {
   ControllerExceptionHandler.class,
-  Keycloak.class,
   KeycloakAccessTokenService.class,
   KeycloakClientService.class,
-  KeycloakConfig.class,
   KeycloakGroupRepository.class,
   KeycloakGroupService.class,
   KeycloakRoleRepository.class,
@@ -62,6 +59,7 @@ import org.testcontainers.utility.DockerImageName;
   KeycloakService.class,
   KeycloakUserService.class,
   UserEntityRepository.class,
+  KeycloakTestEnvironment.TestConfig.class
 })
 @WebMvcTest
 @ActiveProfiles("test")
@@ -69,9 +67,7 @@ import org.testcontainers.utility.DockerImageName;
 public abstract class KeycloakTestEnvironment {
 
   private final static String PGSQL_ROOT_USER = "root";
-
   private final static String PGSQL_ROOT_PASSWORD = "example";
-
   public final static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(
     DockerImageName.parse("postgres:15-alpine3.17"))
     .withUsername(PGSQL_ROOT_USER)
@@ -79,7 +75,6 @@ public abstract class KeycloakTestEnvironment {
     .withClasspathResourceMapping("database.sql", "/docker-entrypoint-initdb.d/databases.sql",
       BindMode.READ_ONLY)
     .withReuse(true);
-
   public final static GenericContainer<?> keycloak = new GenericContainer<>(
     DockerImageName.parse("bitnami/keycloak:20.0.5-debian-11-r13"))
     .withEnv("KEYCLOAK_CREATE_ADMIN_USER", "true")
@@ -95,14 +90,10 @@ public abstract class KeycloakTestEnvironment {
     .withLogConsumer(new Slf4jLogConsumer(log))
     .dependsOn(postgres)
     .withReuse(true);
-
   private static String keycloakAuthServerUrl;
-
   @RegisterExtension
   final RestDocumentationExtension restDocumentation = new RestDocumentationExtension();
-
   protected MockMvc mockMvc;
-
   @Autowired
   protected KeycloakService keycloakService;
 
@@ -121,19 +112,19 @@ public abstract class KeycloakTestEnvironment {
       initKeycloakRealmSettings(keycloakAuthServerUrl);
     }
 
-    registry.add("keycloak.auth-server-url", () -> keycloakAuthServerUrl);
-    registry.add("keycloak.realm", () -> "app");
-    registry.add("keycloak.client-id", () -> "console-cli");
-    registry.add("keycloak.admin.username", () -> "admin");
-    registry.add("keycloak.admin.password", () -> "admin");
     registry.add("spring.security.oauth2.resourceserver.jwt.jwk-set-uri",
       () -> String.format("%s/realms/app/protocol/openid-connect/certs", keycloakAuthServerUrl));
-    registry.add("app.datasource.keycloak.url", () -> keycloakJdbcUrl);
-    registry.add("app.datasource.keycloak.jdbcUrl", () -> keycloakJdbcUrl);
-    registry.add("app.datasource.keycloak.username", () -> "root");
-    registry.add("app.datasource.keycloak.password", () -> "example");
-    registry.add("app.datasource.keycloak.driver-class-name", () -> "org.postgresql.Driver");
-    registry.add("app.datasource.keycloak.dialect",
+    registry.add("app.keycloak.auth-server-url", () -> keycloakAuthServerUrl);
+    registry.add("app.keycloak.realm", () -> "app");
+    registry.add("app.keycloak.client-id", () -> "console-cli");
+    registry.add("app.keycloak.username", () -> "admin");
+    registry.add("app.keycloak.password", () -> "admin");
+    registry.add("app.keycloak.datasource.url", () -> keycloakJdbcUrl);
+    registry.add("app.keycloak.datasource.jdbcUrl", () -> keycloakJdbcUrl);
+    registry.add("app.keycloak.datasource.username", () -> "root");
+    registry.add("app.keycloak.datasource.password", () -> "example");
+    registry.add("app.keycloak.datasource.driver-class-name", () -> "org.postgresql.Driver");
+    registry.add("app.keycloak.datasource.dialect",
       () -> "org.hibernate.dialect.PostgreSQLDialect");
   }
 
@@ -184,5 +175,10 @@ public abstract class KeycloakTestEnvironment {
       keycloakService.getClientScopeResource(it.getName()).remove());
 
     keycloakService.getRealmResource().logoutAll();
+  }
+
+  @EnableKeycloakIntegration
+  public static class TestConfig {
+
   }
 }

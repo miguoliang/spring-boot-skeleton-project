@@ -15,18 +15,12 @@ import org.keycloak.representations.idm.ClientScopeRepresentation;
 import org.keycloak.representations.idm.GroupRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Service
-@Transactional("keycloakTransactionManager")
 public class KeycloakService {
 
   private final Keycloak keycloak;
@@ -46,11 +40,10 @@ public class KeycloakService {
 
   private final KeycloakGroupRepository keycloakGroupRepository;
 
-  @Autowired
   public KeycloakService(Keycloak keycloak,
-                         @Value("${keycloak.realm}") String realm,
-                         @Value("${keycloak.client-id}") String clientId,
-                         @Value("${keycloak.auth-server-url}") String authServerUrl,
+                         String realm,
+                         String clientId,
+                         String authServerUrl,
                          UserEntityRepository userEntityRepository,
                          KeycloakGroupRepository keycloakGroupRepository) {
 

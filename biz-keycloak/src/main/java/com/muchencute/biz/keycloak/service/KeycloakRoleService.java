@@ -4,18 +4,14 @@ package com.muchencute.biz.keycloak.service;
 import com.muchencute.biz.keycloak.model.Role;
 import com.muchencute.biz.keycloak.request.NewRoleRequest;
 import org.keycloak.representations.idm.RoleRepresentation;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.List;
 
-@Service
 public class KeycloakRoleService {
 
   private final KeycloakService keycloakService;
 
-  @Autowired
   public KeycloakRoleService(KeycloakService keycloakService) {
 
     this.keycloakService = keycloakService;
